@@ -174,18 +174,24 @@ const BASE = 'cupsweep/' + SWEEP_ID;
   const TS = firebase.database.ServerValue.TIMESTAMP;
 
   // ---------- racing colours ----------
-  const COLOURS = [['#7cc3ec',['light blue','sky blue','pale blue','aqua','turquoise','teal']],['#2638a8',['royal blue']],['#14204e',['navy blue','navy','dark blue']],['#1f5fd1',['blue']],['#d0202e',['scarlet','red']],['#7a1630',['maroon','burgundy','claret','wine']],['#f08cb4',['cerise','pink','fuchsia','magenta']],['#f2801f',['orange','tangerine']],['#c9a227',['gold','amber']],['#f6d31f',['yellow','lemon']],['#9bd13a',['lime']],['#0f6b4a',['emerald','dark green','bottle green','racing green']],['#1f8a3c',['green']],['#6b2b9e',['purple','violet','mauve','lilac','lavender']],['#ffffff',['white','cream','ivory']],['#9aa0a6',['grey','gray','silver']],['#7a4a24',['brown','beige','tan','fawn','chocolate']],['#151515',['black']]];
+  const COLOURS = [['#7cc3ec',['light blue','sky blue','pale blue','aqua','turquoise','teal']],['#2638a8',['royal blue']],['#14204e',['navy blue','navy','dark blue']],['#1f5fd1',['blue']],['#d0202e',['scarlet','red']],['#7a1630',['maroon','burgundy','claret','wine']],['#f08cb4',['cerise','pink','fuchsia','magenta']],['#f2801f',['orange','tangerine']],['#c9a227',['gold','amber']],['#f6d31f',['yellow','lemon']],['#9bd13a',['lime']],['#0f6b4a',['emerald green','emerald','dark green','bottle green','racing green']],['#1f8a3c',['green']],['#6b2b9e',['purple','violet','mauve','lilac','lavender']],['#ffffff',['white','cream','ivory']],['#9aa0a6',['grey','gray','silver']],['#7a4a24',['brown','beige','tan','fawn','chocolate']],['#151515',['black']]];
   const CWORDS = []; COLOURS.forEach(([hex,words]) => words.forEach(w => CWORDS.push([w,hex])));
   CWORDS.sort((a,b) => b[0].length - a[0].length);
-  const PWORDS = [['sash','sash'],['hoop','hoops'],['stripe','stripes'],['halves','halves'],['halved','halves'],['quarter','halves'],['sleeve','sleeves'],['armband','sleeves'],['spot','spots'],['star','spots'],['diamond','spots'],['chevron','sash'],['braces','sash'],['cross','sash']];
+  const PWORDS = [['sash','sash'],['hoop','hoops'],['stripe','stripes'],['halves','halves'],['halved','halves'],['quarter','halves'],['check','halves'],['sleeve','sleeves'],['armband','sleeves'],['spot','spots'],['star','spots'],['diamond','spots'],['chevron','sash'],['braces','sash'],['cross','sash']];
   function parseColours(txt){
-    const t = ' ' + String(txt||'').toLowerCase().replace(/[^a-z ]/g,' ') + ' ';
+    // Racing colours read jacket first, then sleeves, then cap. Ignore the cap parts.
+    const segs = String(txt||'').toLowerCase().split(/,/).map(s => ' ' + s.replace(/[^a-z ]/g,' ').replace(/\b(and |with )?(quartered |striped )?(cap|peak|pom pom|tassel)\b.*$/,'') + ' ').filter(s => s.trim());
+    const use = segs.length ? segs : [' ' + String(txt||'').toLowerCase().replace(/[^a-z ]/g,' ') + ' '];
+    const t = ' ' + use.join(' , ') + ' ';
     const found = []; let rest = t;
     CWORDS.forEach(([w,hex]) => { let i; const pat = ' ' + w + ' '; while ((i = rest.indexOf(pat)) >= 0){ found.push([i,hex]); rest = rest.slice(0,i) + ' '.repeat(pat.length) + rest.slice(i+pat.length); } });
     if (!found.length) return null;
     found.sort((a,b) => a[0]-b[0]);
     const a = found[0][1], b = (found.find(f => f[1] !== a) || [0,a])[1];
-    let p = 'plain'; for (const [w,pp] of PWORDS){ if (t.includes(w)) { p = pp; break; } }
+    let p = 'plain';
+    outer: for (const s of use){
+      for (const [w,pp] of PWORDS){ if (s.includes(w)){ p = /sleeve/.test(s) ? 'sleeves' : pp; break outer; } }
+    }
     return {a, b, p};
   }
   const JACKET = 'M10 9 L15 6 Q20 9.5 25 6 L30 9 L38 21 L33.5 24 L30 18.5 L30 36 L10 36 L10 18.5 L6.5 24 L2 21 Z';
@@ -220,6 +226,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
   let pickFor = '';
   let sel = +(LS.get('cupsweep.sel.'+SWEEP_ID) || 0);
   let confirmKey = null, newPlayer = '', pasteText = '', pinText = '', pendingRender = false;
+  let importText = '', importPreview = null;
 
   function normalize(v){
     v = v || {};
@@ -371,7 +378,26 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     h += S.players.length ? `<div class="players">${S.players.map(p => `<span class="pchip">${esc(p.name)}<button data-act="rmp" data-id="${esc(p.id)}" aria-label="Remove ${esc(p.name)}">×</button></span>`).join('')}</div>` : `<div class="empty">Add everyone who’s in today. They’ll choose their name from this list.</div>`;
     if (confirmKey && confirmKey.startsWith('rmp:')){ const p = player(confirmKey.slice(4)); if (p) h += `<div class="confirm"><span>${esc(p.name)} has horses already. Remove anyway? Their horses stay in the pots.</span><button class="danger" data-act="rmp-yes" data-id="${esc(p.id)}">Remove</button><button data-act="cancel">Cancel</button></div>`; }
     h += `<form class="row" data-form="addp"><label class="f">Add a player<input id="new-player" value="${esc(newPlayer)}" placeholder="Name" autocomplete="off" maxlength="40"></label><button type="submit">Add</button></form></section>`;
-    return h;
+    return h + renderImport();
+  }
+
+  function renderImport(){
+    let h = `<details class="panel" ${importPreview ? 'open' : ''}><summary>Import fields from Racing Australia</summary><div class="tools-body">
+      <p class="small muted">Open the Cup Day fields page on Racing Australia, press Ctrl+A then Ctrl+C, and paste the whole page here. It loads every race’s horses, jockeys and colours. Odds aren’t on that page, so add them in each race afterwards.</p>
+      <textarea id="ra-text" rows="5" placeholder="Paste the whole Racing Australia page here">${esc(importText)}</textarea>
+      <div class="row"><button data-act="ra-read">Read pasted page</button>${importPreview ? `<button class="ghost" data-act="ra-clear">Clear</button>` : ''}</div>`;
+    if (importPreview){
+      if (!importPreview.length) h += `<p class="warn">I couldn’t find any races in that text. Make sure you copied the whole page, including the “Race 1 - …” headings.</p>`;
+      else {
+        h += `<div class="list">` + importPreview.map(r => {
+          const ex = race(r.n), picked = ex ? Object.keys(ex.picks).length : 0;
+          const wc = r.field.filter(x => x.c).length, wj = r.field.filter(x => x.j).length;
+          return `<div class="li"><span class="cloth ${r.n===7?'c':''} num">${r.n}</span><span class="main"><b>${esc(r.name)}</b><span class="owner num">${r.field.length} horses · ${wc} with colours · ${wj} with jockeys${picked ? ` · <span class="neg-net">skipped, ${picked} already picked</span>` : ''}</span></span><span></span></div>`;
+        }).join('') + `</div><button class="primary" data-act="ra-load">Load these into the sweep</button>
+        <p class="small muted">Races that already have picks are skipped, so nobody’s horse changes. Clear a race’s picks first if you want to reload it.</p>`;
+      }
+    }
+    return h + `</div></details>`;
   }
 
   function myHorseRow(r, n, pk, C, uid){
@@ -497,9 +523,40 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       const parts = line.split(/\t|,|\|/).map(s => s.trim());
       const n = parseInt(parts[0], 10);
       if (!n || n < 1 || n > 40) return;
-      out.push({ n, name: norm(parts[1]), j: norm(parts[2]), odds: norm(String(parts[3]||'').replace(/^\$/,'')), c: norm(parts.slice(4).filter(Boolean).join(', ')).slice(0,60) });
+      out.push({ n, name: norm(parts[1]), j: norm(parts[2]), odds: norm(String(parts[3]||'').replace(/^\$/,'')), c: parts.slice(4).filter(Boolean).join(', ').replace(/\s+/g,' ').trim().slice(0,120) });
     });
     const seen = new Set(); return out.filter(x => !seen.has(x.n) && seen.add(x.n));
+  }
+
+  // Racing Australia fields page, copied with Ctrl+A / Ctrl+C. Each race has a runner table
+  // (tab-separated, header row contains "Horse") followed by one detail block per horse that
+  // starts with "<number><HORSE NAME>" and holds "Colours:" and "Jockey: … Barrier:" lines.
+  function parseRA(text){
+    const clean = s => String(s||'').replace(/\s*VOBIS.*$/i,'').replace(/\s+-\s+.*$/,'').trim();
+    const nkey = s => clean(s).toUpperCase().replace(/[^A-Z0-9]/g,'');
+    const title = s => clean(s).toLowerCase().replace(/(^|[\s(\-])([a-z])/g, (m,a,b) => a + b.toUpperCase()).replace(/\(([a-z]+)\)/gi, (m,a) => '(' + a.toUpperCase() + ')');
+    const races = []; let cur = null, header = null, det = null;
+    String(text||'').split(/\r?\n/).forEach(raw => {
+      const line = raw.replace(/ /g,' ');
+      let m = line.match(/^\s*Race\s+(\d+)\s*-\s*(.+?)\s*(\(\s*[\d,]+\s*METRES?\s*\))?\s*$/i);
+      if (m){ cur = { n:+m[1], name:m[2].trim(), rows:[], det:{} }; races.push(cur); header = null; det = null; return; }
+      if (!cur) return;
+      const cells = line.split('\t');
+      if (cells.length > 2 && cells.some(c => c.trim().toLowerCase() === 'horse')){ header = cells.map(c => c.trim().toLowerCase()); return; }
+      if (header && cells.length > 2 && /^\d+$/.test(cells[0].trim())){
+        const hi = header.indexOf('horse'), ji = header.findIndex(c => c.startsWith('jockey'));
+        if (hi >= 0 && cells[hi]) cur.rows.push({ n:+cells[0].trim(), raw:cells[hi], j: ji >= 0 ? norm(cells[ji]) : '' });
+        return;
+      }
+      if (cells.length === 1 && /^\d+[A-Z]/.test(line.trim())){ det = {}; cur.det[nkey(line.trim().replace(/^\d+/,''))] = det; return; }
+      if (!det) return;
+      m = line.match(/^\s*Colours:\s*(.+)$/i); if (m){ det.c = m[1].replace(/\s+/g,' ').trim(); return; }
+      m = line.match(/Jockey:\s*(.*?)\s*Barrier:/i); if (m && m[1].trim()) det.j = norm(m[1]);
+    });
+    return races.filter(r => r.rows.length).map(r => ({
+      n: r.n, name: r.name,
+      field: r.rows.map(x => { const d = r.det[nkey(x.raw)] || {}; return { n:x.n, name:title(x.raw), j: x.j || d.j || '', odds:'', c: (d.c || '').slice(0,120) }; })
+    }));
   }
 
   // ---------- events ----------
@@ -510,6 +567,24 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     if (act === 'pick'){ const who = isOrg ? pickFor : meId; if (who && r) pickHorse(r, who); return; }
     if (act === 'cancel'){ confirmKey = null; render(); return; }
     if (!isOrg) return;
+    if (act === 'ra-read'){ importPreview = parseRA(importText); render(); return; }
+    if (act === 'ra-clear'){ importText = ''; importPreview = null; render(); return; }
+    if (act === 'ra-load'){
+      if (!importPreview || !importPreview.length) return;
+      const u = {}; let loaded = 0;
+      importPreview.forEach(r => {
+        const ex = race(r.n);
+        if (ex && Object.keys(ex.picks).length) return;
+        const obj = {}; r.field.forEach(x => { obj[x.n] = { name:x.name, j:x.j, odds:'', c:x.c, scr:false }; });
+        u[`races/${r.n}/field`] = obj;
+        u[`races/${r.n}/name`] = r.name;
+        if (!ex){ u[`races/${r.n}/on`] = true; u[`races/${r.n}/price`] = 2; u[`races/${r.n}/split`] = {p1:60,p2:30,p3:10}; }
+        loaded++;
+      });
+      importText = ''; importPreview = null;
+      save(u, `Loaded ${loaded} race${loaded===1?'':'s'} from Racing Australia`);
+      return;
+    }
     if (act === 'lock'){ isOrg = false; LS.set('cupsweep.pin.'+SWEEP_ID, null); render(); return; }
     if (act === 'rmp'){
       const id = b.dataset.id, has = S.races.some(x => Object.values(x.picks).some(pk => pk.pid === id));
@@ -541,6 +616,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     if (id === 'new-player') newPlayer = e.target.value;
     else if (id === 'paste') pasteText = e.target.value;
     else if (id === 'pin') pinText = e.target.value;
+    else if (id === 'ra-text') importText = e.target.value;
   });
 
   root.addEventListener('submit', async e => {
@@ -586,7 +662,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       if (v){ PK.forEach((k,j) => { if (j !== i && r.res[j] === v) u[`races/${r.id}/res/${k}`] = null; }); u[`races/${r.id}/closed`] = true; }
       save(u, `${r.name} result updated`);
     } else if (t.dataset.fe){
-      const f = t.dataset.fe; let v = norm(t.value); if (f === 'odds') v = v.replace(/^\$/,'');
+      const f = t.dataset.fe; let v = f === 'c' ? String(t.value).replace(/\s+/g,' ').trim().slice(0,120) : norm(t.value); if (f === 'odds') v = v.replace(/^\$/,'');
       save({ [`races/${r.id}/field/${t.dataset.n}/${f}`]: v }, `No. ${t.dataset.n} updated`);
     }
   });
