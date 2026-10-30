@@ -4,137 +4,229 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Cup Day Sweep</title>
-<meta name="theme-color" content="#1d6a43">
+<meta name="theme-color" content="#083d24">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Cup Sweep">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@75..150,500..900&family=Public+Sans:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: phone-first racebook — you + your horses, latest results, race strip, one race card (pick button, field, payouts), standings, organiser tools */
+/* Layout: phone-first racebook. A racing-green hero with the Cup and a horse on the rail, next-jump bar,
+   you + your horses, live feed, race strip, one race card, standings, organiser tools.
+   One high-contrast light theme on purpose: it stays readable outdoors in full sun. Big type for older eyes. */
 :root{
-  --bg:#eef2ec; --surface:#ffffff; --ink:#16211a; --muted:#5a685f; --line:#d5ddd3;
-  --turf:#1d6a43; --turf-soft:#dcebe1; --rose:#c22f4b; --rose-soft:#f8e1e6;
-  --gold:#a87b1f; --silver:#6f7a83; --bronze:#9a5a2c; --on-solid:#ffffff;
-  --cloth:#ffffff; --cloth-ink:#111111; --cloth-cup:#c22f4b; --cloth-cup-ink:#ffffff;
+  --bg:#e9efea; --surface:#ffffff; --ink:#0b140f; --muted:#344038; --line:#adbcb2;
+  --turf:#0b5a33; --turf-deep:#083d24; --turf-soft:#d9eee1;
+  --rose:#a90f2b; --rose-soft:#fbe2e7;
+  --gold:#e8b923; --gold-ink:#6f4f00; --gold-soft:#fbf0c9;
+  --silver:#c9d0d6; --bronze:#d08a4c; --on-solid:#ffffff;
+  --cloth:#ffffff; --cloth-ink:#0b140f; --cloth-cup:#a90f2b; --cloth-cup-ink:#ffffff;
   --display:"Anybody","Arial Narrow",system-ui,sans-serif;
   --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){:root{
-  --bg:#0e1511; --surface:#16201a; --ink:#e6ede8; --muted:#9aa89f; --line:#29362e;
-  --turf:#5bbf8a; --turf-soft:#1c3226; --rose:#ef6b84; --rose-soft:#3a1b23;
-  --gold:#e1b350; --silver:#aab4bc; --bronze:#d48d58; --on-solid:#0e1511;
-  --cloth:#f4f4f1; --cloth-ink:#111111; --cloth-cup:#d9435f; --cloth-cup-ink:#ffffff; color-scheme:dark}}
 *{box-sizing:border-box}
 html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.5;-webkit-text-size-adjust:100%}
 [hidden]{display:none!important}
-.wrap{max-width:760px;margin:0 auto;padding-block:18px 110px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
+.wrap{max-width:780px;margin:0 auto;padding-block:16px 120px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
 h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
-h1{font-size:clamp(34px,9vw,52px);font-weight:850;font-stretch:125%;letter-spacing:-.01em;line-height:1}
-h2{font-size:20px;font-weight:800;font-stretch:115%}
-h3{font-size:16px;font-weight:800;font-stretch:110%}
+h1{font-size:clamp(40px,11vw,60px);font-weight:900;font-stretch:125%;letter-spacing:-.01em;line-height:.95}
+h2{font-size:25px;font-weight:850;font-stretch:115%;color:var(--turf-deep)}
+h3{font-size:20px;font-weight:850;font-stretch:110%}
 p{margin:0}
-code{font-size:13px;background:var(--bg);padding:1px 5px;border-radius:4px}
-.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--turf);font-weight:700}
-.muted{color:var(--muted)} .small{font-size:13px} .num{font-variant-numeric:tabular-nums}
-header{display:grid;gap:8px}
-.mode{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-size:13px;color:var(--muted)}
-.mode span{display:inline-flex;align-items:center;gap:6px}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
-.dot.on{background:var(--turf)} .dot.off{background:var(--rose)}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:14px;min-width:0}
-.panel.me{border-color:var(--turf);border-width:2px}
+b{font-weight:700}
+code{font-size:15px;background:var(--bg);padding:1px 6px;border-radius:4px}
+.eyebrow{font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--turf);font-weight:800}
+.muted{color:var(--muted)} .small{font-size:16px} .num{font-variant-numeric:tabular-nums}
+
+/* ---- hero ---- */
+.hero{position:relative;overflow:hidden;border-radius:16px;background:var(--turf-deep);color:var(--on-solid);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;padding:20px 18px 0}
+.hero .eyebrow{color:var(--gold)}
+.hero h1{color:var(--on-solid);grid-column:1}
+.hero .trophy{grid-column:2;grid-row:1 / span 3;width:clamp(76px,22vw,112px);height:auto;align-self:start;filter:drop-shadow(0 3px 0 rgba(0,0,0,.25))}
+.hero .mode{grid-column:1 / -1;color:var(--on-solid)}
+.hero .track{grid-column:1 / -1;position:relative;height:66px;margin:6px -18px 0}
+.hero .rail{position:absolute;left:0;right:0;bottom:12px;height:4px;background:var(--on-solid)}
+.hero .rail::after{content:"";position:absolute;left:0;right:0;top:10px;height:2px;background:var(--on-solid);opacity:.45}
+.hero .runner{position:absolute;bottom:15px;left:58%;width:94px;height:auto}
+@media (prefers-reduced-motion:no-preference){
+  .hero .runner{left:0;animation:gallop 14s linear infinite, bob .42s ease-in-out infinite alternate}
+  @keyframes gallop{0%{transform:translateX(-120px)}55%{transform:translateX(calc(100vw + 40px))}100%{transform:translateX(calc(100vw + 40px))}}
+  @keyframes bob{to{margin-bottom:3px}}
+}
+.mode{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;font-size:16px;font-weight:600}
+.mode span{display:inline-flex;align-items:center;gap:7px}
+.dot{width:11px;height:11px;border-radius:50%;background:#c7d1ca}
+.dot.on{background:#57e08f} .dot.off{background:#ff8fa3}
+.alertbtn{background:var(--gold);border-color:var(--gold);color:var(--ink);font-weight:800}
+.alerts-on{font-weight:600}
+
+/* ---- panels ---- */
+.panel{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:16px;min-width:0}
+.panel.me{border-color:var(--turf);border-width:3px}
 .head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
-button{font:inherit;cursor:pointer;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px;font-weight:600;min-height:40px}
+
+/* ---- controls: big, obvious, easy to hit ---- */
+button{font:inherit;font-size:18px;cursor:pointer;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);padding:11px 18px;font-weight:700;min-height:52px}
 button:hover{border-color:var(--turf)}
-button:disabled{opacity:.5;cursor:default}
+button:disabled{opacity:.45;cursor:default}
 button.primary{background:var(--turf);border-color:var(--turf);color:var(--on-solid)}
-button.big{font-family:var(--display);font-size:19px;font-weight:800;font-stretch:110%;padding:14px 18px;width:100%}
+button.big{font-family:var(--display);font-size:23px;font-weight:850;font-stretch:110%;padding:16px 20px;width:100%;min-height:64px}
 button.danger{background:var(--rose);border-color:var(--rose);color:var(--on-solid)}
-button.ghost{border:none;background:none;padding:6px 8px;min-height:0;color:var(--rose);font-weight:600}
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--rose);outline-offset:2px}
-input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0}
-textarea{width:100%;font-size:14px;font-family:ui-monospace,Menlo,Consolas,monospace}
-label.f{display:grid;gap:4px;font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.02em}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
-.row label.f{flex:1 1 110px}
+button.ghost{border:none;background:none;padding:8px 10px;min-height:44px;color:var(--rose);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+input,select,textarea{font:inherit;font-size:18px;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:9px;padding:11px 12px;min-width:0;min-height:52px}
+select{font-weight:700}
+textarea{width:100%;font-size:16px;font-family:ui-monospace,Menlo,Consolas,monospace}
+label.f{display:grid;gap:6px;font-size:15px;color:var(--muted);font-weight:700}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:end}
+.row label.f{flex:1 1 120px}
+.whoami{display:grid;gap:6px;width:100%;font-size:17px;font-weight:800;color:var(--ink)}
+.whoami select{width:100%;font-size:20px}
+.whoami.need select{border:3px solid var(--gold);background:var(--gold-soft)}
+
+/* ---- lists ---- */
 .list{display:grid}
-.li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1.5px solid var(--line)}
 .li:last-child{border-bottom:none}
-.li .main{min-width:0;display:grid;gap:1px}
-.li .main b{overflow-wrap:anywhere}
-button.li{border:none;border-bottom:1px solid var(--line);border-radius:0;background:none;text-align:left;min-height:0;padding:9px 0;width:100%}
-.amt{font-family:var(--display);font-weight:800;font-size:18px;white-space:nowrap}
+.li .main{min-width:0;display:grid;gap:2px}
+.li .main b{overflow-wrap:anywhere;font-size:19px}
+button.li{border:none;border-bottom:1.5px solid var(--line);border-radius:0;background:none;text-align:left;min-height:0;padding:12px 0;width:100%;font-weight:400}
+.amt{font-family:var(--display);font-weight:850;font-size:22px;white-space:nowrap}
 .pos-net{color:var(--turf)} .neg-net{color:var(--rose)}
 .totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.tot{background:var(--bg);border-radius:8px;padding:10px;display:grid;gap:2px}
-.tot span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
-.tot b{font-family:var(--display);font-size:22px;font-weight:850}
-.sub{font-size:13px;color:var(--muted);text-align:center}
-.strip{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
-.chip{flex:0 0 auto;display:grid;justify-items:center;gap:1px;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);min-width:54px;min-height:0}
-.chip b{font-family:var(--display);font-size:17px;font-weight:800;font-stretch:110%}
-.chip span{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:700}
-.chip.sel{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.tot{background:var(--bg);border-radius:10px;padding:12px 10px;display:grid;gap:2px}
+.tot span{font-size:13.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.tot b{font-family:var(--display);font-size:28px;font-weight:900}
+.sub{font-size:16px;color:var(--muted);text-align:center;font-weight:600}
+
+/* ---- race strip ---- */
+.strip{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:thin}
+.chip{flex:0 0 auto;display:grid;justify-items:center;gap:2px;padding:9px 12px;border-radius:10px;border:2px solid var(--line);background:var(--surface);min-width:72px;min-height:64px}
+.chip b{font-family:var(--display);font-size:22px;font-weight:900;font-stretch:110%}
+.chip span{font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.chip.sel{border-color:var(--turf-deep);background:var(--turf-deep);color:var(--on-solid)}
+.chip.sel span,.chip.sel .done{color:var(--gold)}
+.chip.cup{border-color:var(--gold)}
 .chip.cup b{color:var(--rose)}
+.chip.cup.sel b{color:var(--gold)}
 .chip.off{opacity:.45}
 .chip .done{color:var(--turf)}
+
+/* ---- race card ---- */
 .racehead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
-.racehead h2{font-size:clamp(24px,6.5vw,32px);font-stretch:120%}
+.racehead h2{font-size:clamp(28px,7.5vw,38px);font-stretch:120%;color:var(--ink)}
 .pot{text-align:right}
-.pot b{display:block;font-family:var(--display);font-size:30px;font-weight:850;line-height:1}
-.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
-.pill.open{background:var(--turf-soft);color:var(--turf);border-color:transparent}
-.pill.res{background:var(--rose-soft);color:var(--rose);border-color:transparent}
-.ids{display:flex;gap:6px;align-items:center}
-.cloth{width:38px;height:38px;display:grid;place-items:center;background:var(--cloth);color:var(--cloth-ink);font-family:var(--display);font-weight:850;font-size:18px;border:1px solid var(--line);border-radius:4px;flex:0 0 auto}
+.pot b{display:block;font-family:var(--display);font-size:38px;font-weight:900;line-height:1}
+.pill{display:inline-block;font-size:14px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:5px 11px;border-radius:99px;background:var(--bg);color:var(--ink);border:2px solid var(--line)}
+.pill.open{background:var(--turf);color:var(--on-solid);border-color:var(--turf)}
+.pill.res{background:var(--rose);color:var(--on-solid);border-color:var(--rose)}
+.ids{display:flex;gap:8px;align-items:center}
+.cloth{width:48px;height:48px;display:grid;place-items:center;background:var(--cloth);color:var(--cloth-ink);font-family:var(--display);font-weight:900;font-size:24px;border:2px solid var(--ink);border-radius:6px;flex:0 0 auto}
 .cloth.c{background:var(--cloth-cup);color:var(--cloth-cup-ink);border-color:var(--cloth-cup)}
-.silk{width:38px;height:38px;flex:0 0 auto;display:block}
-.silk-blank{width:38px;height:38px;border:1px dashed var(--line);border-radius:4px;flex:0 0 auto}
-.rn.scr{opacity:.5}
+.silk{width:46px;height:52px;flex:0 0 auto;display:block}
+.silk-blank{width:46px;height:52px;border:2px dashed var(--line);border-radius:6px;flex:0 0 auto}
+.rn.scr{opacity:.55}
 .rn.scr .hname{text-decoration:line-through}
-.owner{font-size:13px;color:var(--muted)}
-.owner b{color:var(--ink)}
+.owner{font-size:16.5px;color:var(--muted)}
+.owner b{color:var(--ink);font-size:inherit}
+.rn.mine{background:var(--turf-soft);margin:0 -10px;padding-left:10px;padding-right:10px;border-radius:10px}
 .rn.mine .owner b{color:var(--turf)}
-.owner.free{color:var(--turf);font-weight:600}
-.jock{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
-.odds{font-family:var(--display);font-weight:800;font-size:15px;white-space:nowrap}
-.side{display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
-.place{font-family:var(--display);font-weight:850;font-size:13px;padding:3px 7px;border-radius:5px;color:var(--on-solid);white-space:nowrap}
+.owner.free{color:var(--turf);font-weight:800}
+.jock{font-size:15.5px;color:var(--muted);overflow-wrap:anywhere}
+.odds{font-family:var(--display);font-weight:850;font-size:19px;white-space:nowrap}
+.side{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.place{font-family:var(--display);font-weight:900;font-size:16px;padding:4px 9px;border-radius:7px;color:var(--ink);white-space:nowrap;border:2px solid rgba(0,0,0,.25)}
 .p1{background:var(--gold)} .p2{background:var(--silver)} .p3{background:var(--bronze)}
-.tog{font-size:12px;padding:6px 9px;min-height:34px}
-.pickbox{display:grid;gap:10px;padding:14px;border-radius:10px;background:var(--turf-soft)}
-.reveal{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center;padding:16px;border-radius:10px;border:2px solid var(--turf);background:var(--surface)}
+.tog{font-size:15px;padding:8px 12px;min-height:44px}
+.pickbox{display:grid;gap:12px;padding:16px;border-radius:12px;background:var(--turf-soft);border:2px solid var(--turf)}
+.reveal{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center;padding:16px;border-radius:12px;border:3px solid var(--turf);background:var(--surface)}
 .reveal .big-ids{display:flex;gap:8px}
-.reveal .big-ids .cloth,.reveal .big-ids .silk,.reveal .big-ids .silk-blank{width:60px;height:60px;font-size:28px}
-.reveal h3{font-size:22px}
+.reveal .big-ids .cloth{width:64px;height:64px;font-size:32px}.reveal .big-ids .silk,.reveal .big-ids .silk-blank{width:64px;height:72px}
+.reveal h3{font-size:24px}
 @media (prefers-reduced-motion:no-preference){.reveal{animation:pop .5s ease-out}@keyframes pop{0%{transform:scale(.94);opacity:.4}100%{transform:none;opacity:1}}}
-.results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px;background:var(--rose-soft);border-radius:8px}
-.warn{font-size:13px;color:var(--rose)}
-.note{font-size:13px;padding:10px 12px;border-radius:8px;background:var(--bg);color:var(--muted)}
-details.tools{border-top:1px dashed var(--line);padding-top:10px}
-details>summary{cursor:pointer;font-weight:700;color:var(--turf);padding:4px 0}
-.tools-body{display:grid;gap:14px;margin-top:10px}
+.results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.confirm{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 14px;background:var(--rose-soft);border:2px solid var(--rose);border-radius:10px;font-weight:600}
+.warn{font-size:16px;color:var(--rose);font-weight:700}
+.note{font-size:16.5px;padding:12px 14px;border-radius:10px;background:var(--gold-soft);color:var(--ink);border:2px solid var(--gold);font-weight:600}
+details.tools{border-top:2px dashed var(--line);padding-top:12px}
+details>summary{cursor:pointer;font-weight:800;color:var(--turf);padding:8px 0;font-size:18px;min-height:44px}
+.tools-body{display:grid;gap:16px;margin-top:10px}
 .ftable{overflow-x:auto}
-.ftable table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
-.ftable th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:4px}
-.ftable td{padding:3px 4px;vertical-align:middle}
-.ftable input{width:100%;padding:6px 7px;font-size:14px}
-.ftable td.n{font-family:var(--display);font-weight:800;width:34px}
-.players{display:flex;flex-wrap:wrap;gap:6px}
-.pchip{display:inline-flex;align-items:center;gap:4px;padding:5px 6px 5px 11px;border-radius:99px;background:var(--bg);border:1px solid var(--line);font-weight:600}
-.pchip button{border:none;background:none;padding:0 6px;min-height:0;color:var(--muted);font-size:17px;line-height:1}
-.rules{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px;max-width:65ch}
-.flash{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:var(--ink);color:var(--bg);text-align:center;font-size:14px;font-weight:600}
-.empty{padding:14px;border:1px dashed var(--line);border-radius:8px;text-align:center;color:var(--muted);font-size:14px}
-@media (max-width:480px){.results{grid-template-columns:1fr}.pot{text-align:left}.totals{gap:6px}.tot b{font-size:19px}}
+.ftable table{border-collapse:collapse;width:100%;min-width:620px;font-size:16px}
+.ftable th{text-align:left;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:6px 4px}
+.ftable td{padding:4px;vertical-align:middle}
+.ftable input{width:100%;padding:8px 9px;font-size:16px;min-height:44px}
+.ftable td.n{font-family:var(--display);font-weight:900;width:38px;font-size:20px}
+.players{display:flex;flex-wrap:wrap;gap:8px}
+.pchip{display:inline-flex;align-items:center;gap:4px;padding:6px 6px 6px 14px;border-radius:99px;background:var(--bg);border:2px solid var(--line);font-weight:700}
+.pchip button{border:none;background:none;padding:0 10px;min-height:40px;color:var(--rose);font-size:22px;line-height:1}
+.rules{margin:0;padding-left:22px;display:grid;gap:10px;font-size:17.5px;max-width:65ch}
+.flash{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:16px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:var(--ink);color:var(--on-solid);text-align:center;font-size:18px;font-weight:700}
+.cloth.taken{position:relative;opacity:.45;text-decoration:line-through;text-decoration-thickness:3px}
+.cloth.taken::after{content:"";position:absolute;left:3px;right:3px;top:50%;height:3px;background:var(--rose);transform:rotate(-40deg)}
+.mygrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.mycard{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--surface)}
+.mycard .big-ids{display:flex;gap:6px}
+.mycard .hname{font-size:19px}
+.mycard.fresh{border:3px solid var(--turf);background:var(--turf-soft)}
+.mycard.scr{opacity:.55}
+.mycard.scr .hname{text-decoration:line-through}
+@media (prefers-reduced-motion:no-preference){.mycard.fresh{animation:pop .5s ease-out}}
+.banner{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:12px;background:var(--rose);color:var(--on-solid);font-weight:800;font-size:19px}
+.banner .ghost{color:var(--on-solid);font-size:24px;text-decoration:none}
+.overlay{position:fixed;inset:0;z-index:30;background:rgba(5,12,8,.72);display:grid;place-items:center;padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
+.popup{background:var(--surface);color:var(--ink);border-radius:16px;padding:22px;display:grid;gap:14px;width:min(480px,100%);max-height:calc(100vh - 32px);overflow:auto;border-top:10px solid var(--gold)}
+.popup h2{font-size:30px;font-stretch:120%;color:var(--ink)}
+.youwon{background:var(--turf);color:var(--on-solid);border-radius:12px;padding:14px 16px;font-family:var(--display);font-size:24px;font-weight:900}
+.youwon b{font-size:34px;color:var(--gold)}
+.youwon.close{background:var(--gold-soft);color:var(--ink);border:2px solid var(--gold)}
+.youwon.close b{color:var(--gold-ink)}
+@media (prefers-reduced-motion:no-preference){.popup{animation:pop .45s ease-out}}
+.resultpad{display:grid;gap:14px;padding:16px;border-radius:12px;border:3px solid var(--gold);background:var(--gold-soft)}
+.slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.slot{display:grid;gap:4px;justify-items:start;padding:10px;border-radius:10px;border:2px dashed var(--line);background:var(--surface);min-width:0}
+.slot b{font-size:20px}
+.slot.next{border:3px solid var(--turf)}
+.slot.set{border-style:solid}
+.slot .small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.padgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
+.padkey{position:relative;display:grid;justify-items:center;gap:4px;padding:10px 6px;min-height:110px;border-radius:12px}
+.padkey .cloth{width:52px;height:52px;font-size:26px}
+.padkey.on{border:3px solid var(--turf);background:var(--turf-soft)}
+.padkey .place{position:absolute;top:5px;right:5px;font-size:13px;padding:2px 6px}
+.padname{font-size:14px;font-weight:700;line-height:1.2;text-align:center;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;max-width:100%}
+.padown{font-size:13px;color:var(--muted);line-height:1.15;font-weight:600}
+.ticker{display:grid;gap:3px;justify-items:start;text-align:left;width:100%;padding:14px 18px;border-radius:14px;border:3px solid var(--ink);background:var(--gold);color:var(--ink)}
+.ticker .eyebrow{color:var(--ink)}
+.ticker b{font-family:var(--display);font-size:25px;font-weight:900;font-stretch:115%;line-height:1.15}
+.ticker .small{font-weight:700}
+.ticker.soon{background:var(--rose);color:var(--on-solid);border-color:var(--rose)}
+.ticker.soon .eyebrow{color:var(--on-solid)}
+@media (prefers-reduced-motion:no-preference){.ticker.soon{animation:pulse 1.6s ease-in-out infinite}@keyframes pulse{50%{filter:brightness(1.15)}}}
+.feed{display:grid}
+.feeditem{display:flex;justify-content:space-between;gap:12px;align-items:baseline;text-align:left;width:100%;border:none;border-bottom:1.5px solid var(--line);border-radius:0;background:none;padding:11px 0;min-height:0;font-weight:400;font-size:17px}
+.feeditem:last-child{border-bottom:none}
+.feeditem span:first-child{min-width:0;overflow-wrap:anywhere}
+.feeditem span:last-child{white-space:nowrap;flex:0 0 auto}
+.feeditem.win{font-weight:700;color:var(--turf)}
+.tag{display:inline-block;font-size:13.5px;font-weight:900;letter-spacing:.03em;text-transform:uppercase;padding:2px 8px;border-radius:99px;vertical-align:2px}
+.tag.fav{background:var(--gold);color:var(--ink)}
+.tag.roughie{background:var(--rose);color:var(--on-solid)}
+.badge{display:inline-block;font-size:16px;font-weight:700;font-family:var(--body);margin-left:3px;white-space:nowrap}
+.wrapped{border:3px solid var(--gold);background:var(--gold-soft)}
+.wrapped h2{color:var(--ink)}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.wcard{display:grid;gap:4px;padding:14px;border-radius:12px;background:var(--surface);border:2px solid var(--line);min-width:0}
+.wcard b{font-family:var(--display);font-size:24px;font-weight:900;overflow-wrap:anywhere}
+.wcard.you{border:3px solid var(--turf)}
+.empty{padding:16px;border:2px dashed var(--line);border-radius:10px;text-align:center;color:var(--muted);font-size:17px;font-weight:600}
+@media (max-width:480px){.results{grid-template-columns:1fr}.pot{text-align:left}.totals{gap:6px}.tot b{font-size:23px}.slots{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.chip,button{transition:border-color .15s,background .15s}}
 </style>
 </head>
 <body>
-<div id="root"><div class="wrap"><header><div class="eyebrow">Flemington · Tuesday 3 November 2026</div><h1>Cup Day Sweep</h1><p class="muted">Loading the sweep…</p></header></div></div>
+<div id="root"><div class="wrap"><header class="hero"><div class="eyebrow">Flemington · Tuesday 3 November</div><h1>Cup Day Sweep</h1><svg class="trophy" viewBox="0 0 80 80" role="img" aria-label="The Melbourne Cup"><g fill="#e8b923"><path d="M14 8 H66 V11 H63 C63 30 56 40 44 44 V50 C44 52 46 53 48 54 H32 C34 53 36 52 36 50 V44 C24 40 17 30 17 11 H14 Z"/><path d="M17 14 C6 14 4 26 12 31 C15 33 19 33 21 31 L19 28 C17 30 14 30 12 28 C8 24 10 18 17 18 Z"/><path d="M63 14 C74 14 76 26 68 31 C65 33 61 33 59 31 L61 28 C63 30 66 30 68 28 C72 24 70 18 63 18 Z"/><path d="M34 4 C34 0 46 0 46 4 C46 6 43 7 40 7 C37 7 34 6 34 4 Z"/><path d="M30 54 H50 L54 62 H26 Z"/></g><rect x="22" y="62" width="36" height="12" rx="1.5" fill="#5a3418"/><rect x="25" y="65" width="30" height="6" fill="#e8b923"/><path d="M22 13 C23 28 29 37 38 40" stroke="#fff6cf" stroke-width="2.4" fill="none" opacity=".75"/></svg><div class="mode"><span>Loading the sweep…</span></div><div class="track" aria-hidden="true"><span class="rail"></span></div></header></div></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -166,51 +258,139 @@ const BASE = 'cupsweep/' + SWEEP_ID;
   const PL = ['1st','2nd','3rd'], PK = ['p1','p2','p3'];
 
   if (!FIREBASE_CONFIG.databaseURL || /PASTE/.test(FIREBASE_CONFIG.apiKey)){
-    root.innerHTML = `<div class="wrap"><header><div class="eyebrow">Setup needed</div><h1>Cup Day Sweep</h1></header><section class="panel"><h2>Connect Firebase</h2><p>Open this file in a text editor and paste your Firebase web config into <code>FIREBASE_CONFIG</code> near the bottom. It needs a <code>databaseURL</code>, which means Realtime Database is turned on in your Firebase project.</p></section></div>`;
+    root.innerHTML = `<div class="wrap"><header class="hero"><div class="eyebrow">Setup needed</div><h1>Cup Day Sweep</h1><div class="track"><span class="rail"></span></div></header><section class="panel"><h2>Connect Firebase</h2><p>Open this file in a text editor and paste your Firebase web config into <code>FIREBASE_CONFIG</code> near the bottom. It needs a <code>databaseURL</code>, which means Realtime Database is turned on in your Firebase project.</p></section></div>`;
     return;
   }
   firebase.initializeApp(FIREBASE_CONFIG);
   const db = firebase.database();
   const TS = firebase.database.ServerValue.TIMESTAMP;
 
+  // ---------- race-day hero ----------
+  const TROPHY_SVG = `<svg class="trophy" viewBox="0 0 80 80" role="img" aria-label="The Melbourne Cup"><g fill="#e8b923"><path d="M14 8 H66 V11 H63 C63 30 56 40 44 44 V50 C44 52 46 53 48 54 H32 C34 53 36 52 36 50 V44 C24 40 17 30 17 11 H14 Z"/><path d="M17 14 C6 14 4 26 12 31 C15 33 19 33 21 31 L19 28 C17 30 14 30 12 28 C8 24 10 18 17 18 Z"/><path d="M63 14 C74 14 76 26 68 31 C65 33 61 33 59 31 L61 28 C63 30 66 30 68 28 C72 24 70 18 63 18 Z"/><path d="M34 4 C34 0 46 0 46 4 C46 6 43 7 40 7 C37 7 34 6 34 4 Z"/><path d="M30 54 H50 L54 62 H26 Z"/></g><rect x="22" y="62" width="36" height="12" rx="1.5" fill="#5a3418"/><rect x="25" y="65" width="30" height="6" fill="#e8b923"/><path d="M22 13 C23 28 29 37 38 40" stroke="#fff6cf" stroke-width="2.4" fill="none" opacity=".75"/></svg>`;
+  const RUNNER_SVG = `<svg class="runner" viewBox="0 0 110 64" aria-hidden="true"><path fill="#fff" d="M19 22 C12 19 5 21 0 27 C3 26 6 26 8 27 C5 29 3 31 2 34 C7 30 12 28 18 28 Z"/><path fill="#fff" d="M18 21 C26 17 40 17 51 19 C56 19 60 17 64 13 C68 8 73 4 79 3 L81 0 L82.5 3 C87 4 92 8 96 13 C97.5 15 97 17.5 94.5 17.5 C91.5 17.5 89 16 86.5 15 C83.5 17 80.5 21 77 26 C75.5 28.5 75 31 75.5 33 L85 36.5 L93.5 36.5 L96.5 39 L92 39.5 L84 39.5 L73 37.5 L75.5 43 L71 50.5 L68.5 50 L71.5 43.5 L66 38.5 C58 40.5 46 40.5 38 38.5 L42 46 L46 53 L43.5 54 L38.5 47 L32 40.5 L23 45 L12 49 L9 51.5 L7.5 49.5 L11 46.5 L21 41 C17.5 39 16 36 16 32 C15.5 28 16 24 18 21 Z"/><g fill="#e8b923"><path d="M52 18 C51 14 53 11 57 9.5 L66 7 C68.5 6.5 70 7.5 69.5 9 L60 12.5 C58 14 57 16 57.5 19 Z"/><path d="M66 8 L75 9.5 L74.5 11 L65 11 Z"/><path d="M55 18 L61 24 L59.5 25.5 L53.5 20 Z"/><circle cx="70.5" cy="5" r="3.1"/></g></svg>`;
+  const heroShell = (eyebrow, status, track) => `<header class="hero"><div class="eyebrow">${eyebrow}</div><h1>Cup Day Sweep</h1>${TROPHY_SVG}<div class="mode" id="hero-status">${status}</div><div class="track" aria-hidden="true"><span class="rail"></span>${track ? RUNNER_SVG : ''}</div></header>`;
+
   // ---------- racing colours ----------
-  const COLOURS = [['#7cc3ec',['light blue','sky blue','pale blue','aqua','turquoise','teal']],['#2638a8',['royal blue']],['#14204e',['navy blue','navy','dark blue']],['#1f5fd1',['blue']],['#d0202e',['scarlet','red']],['#7a1630',['maroon','burgundy','claret','wine']],['#f08cb4',['cerise','pink','fuchsia','magenta']],['#f2801f',['orange','tangerine']],['#c9a227',['gold','amber']],['#f6d31f',['yellow','lemon']],['#9bd13a',['lime']],['#0f6b4a',['emerald green','emerald','dark green','bottle green','racing green']],['#1f8a3c',['green']],['#6b2b9e',['purple','violet','mauve','lilac','lavender']],['#ffffff',['white','cream','ivory']],['#9aa0a6',['grey','gray','silver']],['#7a4a24',['brown','beige','tan','fawn','chocolate']],['#151515',['black']]];
+  // Official wording reads in layers: body colour(s), body pattern or emblem, sleeves, cap.
+  // A part with no colour of its own takes the last colour mentioned ("Red, Gold Sun, Sleeves And Cap").
+  const COLOURS = [['#7cc3ec',['light blue','sky blue','pale blue','deep aqua','aqua','turquoise','teal','cyan']],['#2638a8',['royal blue']],['#14204e',['navy blue','navy','dark blue']],['#1f5fd1',['mid blue','blue']],['#d0202e',['scarlet','red']],['#7a1630',['maroon','burgundy','claret','wine']],['#f08cb4',['cerise','pink','fuchsia','magenta','rose']],['#f2801f',['orange','tangerine','apricot']],['#c9a227',['gold','amber']],['#f6d31f',['yellow','lemon']],['#9bd13a',['lime green','lime']],['#0f6b4a',['emerald green','emerald','bottle green','dark green','racing green','forest green']],['#1f8a3c',['green']],['#6b2b9e',['purple','violet','mauve','lilac','lavender']],['#ffffff',['white','cream','ivory']],['#9aa0a6',['grey','gray','silver']],['#7a4a24',['brown','beige','tan','fawn','chocolate','bronze']],['#151515',['black']]];
   const CWORDS = []; COLOURS.forEach(([hex,words]) => words.forEach(w => CWORDS.push([w,hex])));
   CWORDS.sort((a,b) => b[0].length - a[0].length);
-  const PWORDS = [['sash','sash'],['hoop','hoops'],['stripe','stripes'],['halves','halves'],['halved','halves'],['quarter','halves'],['check','halves'],['sleeve','sleeves'],['armband','sleeves'],['spot','spots'],['star','spots'],['diamond','spots'],['chevron','sash'],['braces','sash'],['cross','sash']];
-  function parseColours(txt){
-    // Racing colours read jacket first, then sleeves, then cap. Ignore the cap parts.
-    const segs = String(txt||'').toLowerCase().split(/,/).map(s => ' ' + s.replace(/[^a-z ]/g,' ').replace(/\b(and |with )?(quartered |striped )?(cap|peak|pom pom|tassel)\b.*$/,'') + ' ').filter(s => s.trim());
-    const use = segs.length ? segs : [' ' + String(txt||'').toLowerCase().replace(/[^a-z ]/g,' ') + ' '];
-    const t = ' ' + use.join(' , ') + ' ';
+  // Pattern / emblem words, checked in this order within one part.
+  const PATS = [
+    ['crossed sash','cross'],['cross sash','cross'],['sashes','cross'],['sash','sash'],['braces','braces'],['chevron','chevron'],
+    ['southern cross','stars'],['stars','stars'],['star','star'],['spots','spots'],['spot','spot'],['diamonds','diamonds'],['diamond','diamond'],
+    ['quarter','quarters'],['halve','halves'],['halved','halves'],['hoop','hoops'],['armband','hoops'],['band','hoops'],
+    ['stripe','stripes'],['striped','stripes'],['check','checks'],['tartan','checks'],
+    ['sun','disc'],['disc','disc'],['circle','disc'],['ring','disc'],['horseshoe','emblem'],['horsehead','emblem'],['heart','emblem'],['bolt','emblem'],['lightning','emblem'],['crown','emblem'],['logo','emblem'],['emblem','emblem'],['monogram','emblem'],['initial','emblem']
+  ];
+  function partInfo(s){
+    const t = ' ' + s + ' ';
     const found = []; let rest = t;
     CWORDS.forEach(([w,hex]) => { let i; const pat = ' ' + w + ' '; while ((i = rest.indexOf(pat)) >= 0){ found.push([i,hex]); rest = rest.slice(0,i) + ' '.repeat(pat.length) + rest.slice(i+pat.length); } });
-    if (!found.length) return null;
     found.sort((a,b) => a[0]-b[0]);
-    const a = found[0][1], b = (found.find(f => f[1] !== a) || [0,a])[1];
-    let p = 'plain';
-    outer: for (const s of use){
-      for (const [w,pp] of PWORDS){ if (s.includes(w)){ p = /sleeve/.test(s) ? 'sleeves' : pp; break outer; } }
-    }
-    return {a, b, p};
+    let pat = null;
+    for (const [w,p] of PATS){ if (new RegExp('\\b' + w).test(rest)) { pat = p; break; } }
+    return { cols: found.map(f => f[1]), pat };
   }
-  const JACKET = 'M10 9 L15 6 Q20 9.5 25 6 L30 9 L38 21 L33.5 24 L30 18.5 L30 36 L10 36 L10 18.5 L6.5 24 L2 21 Z';
-  const SLEEVES = 'M10 9 L2 21 L6.5 24 L10 18.5 Z M30 9 L38 21 L33.5 24 L30 18.5 Z';
+  function parseSilk(txt){
+    const raw = String(txt||'').toLowerCase().replace(/[^a-z, ]/g,' ').replace(/\s+/g,' ');
+    if (!raw.trim()) return null;
+    // Split each comma part on "and"/"with" only where the next piece names sleeves or a cap.
+    const parts = [];
+    raw.split(',').map(s => s.trim()).filter(Boolean).forEach(seg => {
+      const bits = seg.split(/\s+(and|with)\s+/);
+      let cur = bits[0], prevJoin = null;
+      for (let i = 1; i < bits.length; i += 2){
+        const join = bits[i], nxt = bits[i+1] || '';
+        const curIsJustColour = !partInfo(cur).pat && !/\b(sleeves?|cap|armbands?)\b/.test(cur) && cur.replace(new RegExp('\\b(' + CWORDS.map(c => c[0]).join('|') + ')\\b','g'),'').trim() === '';
+        if (!curIsJustColour && (/\b(sleeves?|cap|armbands?)\b/.test(nxt) || (join === 'with' && /\b(sleeves?|cap)\b/.test(cur)))){ parts.push({ s: cur, tail: prevJoin }); cur = nxt; prevJoin = join; }
+        else cur += ' ' + join + ' ' + nxt;
+      }
+      parts.push({ s: cur, tail: prevJoin });
+    });
+    const S = { body:null, bodyPats:[], sleeve:null, sleevePat:null, cap:null, capPat:null };
+    let last = null, area = 'body', capSeen = false, sleeveSeen = false;
+    parts.forEach(({s, tail}, idx) => {
+      const isCap = /\b(cap|peak|pom pom|tassel)\b/.test(s), isSleeve = /\b(sleeves?|armbands?)\b/.test(s) && !/\bcap\b/.test(s);
+      const { cols, pat } = partInfo(s.replace(/\b(seams?|peak|pom pom|tassel|piping)\b.*$/,''));
+      if (/\b(tassel|peak|pom pom)\b/.test(s) && !/\bcap\b/.test(s)) { cols.forEach(c => last = c); return; }
+      if (tail === 'with' && (area === 'cap' || area === 'sleeve') && !isCap && !isSleeve) return; // "Red Cap With White Logo", "White Sleeves With Black Seams"
+      if (isCap){
+        area = 'cap'; capSeen = true;
+        const base = cols[0] || (pat ? S.body : last) || S.body;
+        S.cap = base;
+        if (pat) S.capPat = { p: pat, c: cols[1] || (cols[0] ? S.body : (last !== S.body ? last : null)) || '#ffffff' };
+        cols.forEach(c => last = c); return;
+      }
+      if (isSleeve){
+        area = 'sleeve'; sleeveSeen = true;
+        if (pat === 'hoops' && /armband/.test(s)){ S.sleeve = S.sleeve || S.body; S.sleevePat = { p:'hoops', c: cols[0] || last }; }
+        else if (pat){ S.sleeve = cols.length > 1 ? cols[0] : S.body; S.sleevePat = { p: pat, c: cols.length > 1 ? cols[1] : (cols[0] || last) }; }
+        else S.sleeve = cols[0] || last;
+        cols.forEach(c => last = c); return;
+      }
+      if (!S.body){
+        S.body = cols[0] || '#9aa0a6';
+        if (pat && cols[1]) S.bodyPats.push({ p: pat, c: cols[1] });
+        else if (cols[1] && /\band\b/.test(s) && !/\b(braid|trim|seams?|piping|with)\b/.test(s)) S.bodyPats.push({ p: 'halves', c: cols[1] });
+        cols.forEach(c => last = c); return;
+      }
+      const c = cols[0] || last;
+      if (capSeen){ if (pat) S.capPat = { p: pat, c }; }
+      else if (sleeveSeen && pat === 'hoops'){ S.sleevePat = { p:'hoops', c }; }
+      else if (pat) S.bodyPats.push({ p: pat, c });
+      cols.forEach(cc => last = cc);
+    });
+    if (!S.body) return null;
+    if (!S.sleeve) S.sleeve = S.body;
+    if (!S.cap) S.cap = S.body;
+    return S;
+  }
+  const BODY = 'M12 17 L18 13.5 Q22 16.5 26 13.5 L32 17 L32 47 L12 47 Z';
+  const SLV = 'M12 17 L3 31 L8 34.5 L12 28 Z M32 17 L41 31 L36 34.5 L32 28 Z';
+  const CAP = 'M14.5 12 Q14.5 3 22 3 Q29.5 3 29.5 12 Z';
+  const PEAK = 'M28 10.5 L36.5 12 L29.5 12.5 Z';
+  const starPath = (cx, cy, r) => { let d = ''; for (let i=0;i<10;i++){ const a = Math.PI/2*3 + i*Math.PI/5, rr = i%2 ? r*0.45 : r; d += (i?'L':'M') + (cx + rr*Math.cos(a)).toFixed(2) + ' ' + (cy + rr*Math.sin(a)).toFixed(2) + ' '; } return d + 'Z'; };
+  const diaPath = (cx, cy, r) => `M${cx} ${cy-r} L${cx+r*0.75} ${cy} L${cx} ${cy+r} L${cx-r*0.75} ${cy} Z`;
+  function patSvg(p, c, area){
+    // area: 'body' (x 12–32, y 13–47), 'sleeve' (x 3–41, y 17–35), 'cap' (x 14–30, y 3–12)
+    const B = { body:[12,13,32,47], sleeve:[2,17,42,35], cap:[14,3,30,12] }[area];
+    const [x0,y0,x1,y1] = B, w = x1-x0, h = y1-y0, cx = (x0+x1)/2, cy = (y0+y1)/2;
+    const f = `fill="${c}"`;
+    switch (p){
+      case 'halves': return area === 'sleeve' ? `<rect x="0" y="25" width="44" height="12" ${f}/>` : `<rect x="${cx}" y="${y0-2}" width="${w}" height="${h+4}" ${f}/>`;
+      case 'quarters': return `<rect x="${x0}" y="${cy}" width="${w/2}" height="${h}" ${f}/><rect x="${cx}" y="${y0-2}" width="${w}" height="${h/2+2}" ${f}/>`;
+      case 'stripes': { const n = area === 'cap' ? 3 : area === 'sleeve' ? 4 : 4, g = (area === 'sleeve' ? 9 : w) / n; let o = ''; if (area === 'sleeve') { for (let y = 20; y < 35; y += 4.5) o += `<rect x="0" y="${y}" width="44" height="2" ${f}/>`; return o; } for (let i=0;i<n;i++) o += `<rect x="${(x0 + g*i + g*0.3).toFixed(2)}" y="${y0-2}" width="${(g*0.42).toFixed(2)}" height="${h+4}" ${f}/>`; return o; }
+      case 'hoops': { let o = ''; const step = area === 'cap' ? 3.5 : area === 'sleeve' ? 5 : 7.5; for (let y = y0 + step*0.6; y < y1; y += step) o += `<rect x="0" y="${y.toFixed(2)}" width="44" height="${(step*0.45).toFixed(2)}" ${f}/>`; return o; }
+      case 'checks': { let o = ''; const s = area === 'cap' ? 3 : 4; for (let y = y0; y < y1; y += s) for (let x = 0; x < 44; x += s) if (((x/s|0) + (y/s|0)) % 2) o += `<rect x="${x}" y="${y}" width="${s}" height="${s}" ${f}/>`; return o; }
+      case 'sash': return area === 'body' ? `<polygon points="10,15.5 16,12 34,39 34,48 28,48 10,21" ${f}/>` : `<rect x="0" y="${cy-1}" width="44" height="2.5" ${f}/>`;
+      case 'cross': return area === 'body' ? `<polygon points="10,15.5 16,12 34,39 34,48 28,48 10,21" ${f}/><polygon points="34,15.5 28,12 10,39 10,48 16,48 34,21" ${f}/>` : `<rect x="0" y="${cy-1}" width="44" height="2.5" ${f}/>`;
+      case 'braces': return `<rect x="15" y="12" width="2.6" height="36" ${f}/><rect x="26.4" y="12" width="2.6" height="36" ${f}/>`;
+      case 'chevron': return `<polygon points="12,24 22,34 32,24 32,29 22,39 12,29" ${f}/>`;
+      case 'stars': { const pts = area === 'body' ? [[16.5,22],[27.5,22],[22,30],[16.5,38],[27.5,38]] : area === 'sleeve' ? [[8,26],[36,26],[5.5,30.5],[38.5,30.5]] : [[19,8],[25,8]]; return pts.map(([x,y]) => `<path d="${starPath(x,y,area==='cap'?1.8:2.6)}" ${f}/>`).join(''); }
+      case 'spots': { const pts = area === 'body' ? [[16.5,21],[27.5,21],[22,28],[16.5,35],[27.5,35],[22,42]] : area === 'sleeve' ? [[8,25],[36,25],[6,30],[38,30]] : [[19,8],[25,8]]; return pts.map(([x,y]) => `<circle cx="${x}" cy="${y}" r="${area==='cap'?1.2:1.9}" ${f}/>`).join(''); }
+      case 'diamonds': { const pts = area === 'body' ? [[16.5,22],[27.5,22],[22,30],[16.5,38],[27.5,38]] : [[8,26],[36,26]]; return pts.map(([x,y]) => `<path d="${diaPath(x,y,2.6)}" ${f}/>`).join(''); }
+      case 'star': return `<path d="${starPath(area==='body'?22:cx, area==='body'?29:cy, area==='cap'?3:7)}" ${f}/>`;
+      case 'spot': case 'disc': return `<circle cx="${area==='body'?22:cx}" cy="${area==='body'?29:cy}" r="${area==='cap'?2.5:6}" ${f}/>`;
+      case 'diamond': return `<path d="${diaPath(area==='body'?22:cx, area==='body'?29:cy, area==='cap'?3:7.5)}" ${f}/>`;
+      case 'emblem': return area === 'body' ? `<circle cx="22" cy="29" r="4.6" ${f}/>` : '';
+    }
+    return '';
+  }
   function silk(txt, uid){
-    const s = parseColours(txt);
-    if (!s) return '<span class="silk-blank" aria-hidden="true"></span>';
-    const {a:A, b:B, p} = s; let pat = '';
-    if (B !== A){
-      if (p === 'sash') pat = `<polygon points="9,8 15,5 32,32 32,37 26,37 9,14" fill="${B}"/>`;
-      else if (p === 'hoops') pat = [13,21,29].map(y => `<rect x="0" y="${y}" width="40" height="4" fill="${B}"/>`).join('');
-      else if (p === 'stripes') pat = [12.5,18.5,24.5].map(x => `<rect x="${x}" y="0" width="3" height="40" fill="${B}"/>`).join('');
-      else if (p === 'halves') pat = `<rect x="20" y="0" width="20" height="40" fill="${B}"/>`;
-      else if (p === 'spots') pat = [[15,14],[25,14],[20,21],[15,28],[25,28]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="2.3" fill="${B}"/>`).join('');
-      else pat = `<path d="${SLEEVES}" fill="${B}"/>`;
-    }
-    return `<svg class="silk" viewBox="0 0 40 40" role="img" aria-label="Colours: ${esc(txt)}"><defs><clipPath id="sk-${uid}"><path d="${JACKET}"/></clipPath></defs><path d="${JACKET}" fill="${A}"/><g clip-path="url(#sk-${uid})">${pat}</g><path d="${JACKET}" fill="none" stroke="var(--ink)" stroke-opacity=".6" stroke-width="1" stroke-linejoin="round"/></svg>`;
+    const S = parseSilk(txt);
+    if (!S) return '<span class="silk-blank" aria-hidden="true"></span>';
+    const ol = 'fill="none" stroke="var(--ink)" stroke-opacity=".55" stroke-width=".9" stroke-linejoin="round"';
+    const bp = S.bodyPats.map(x => patSvg(x.p, x.c, 'body')).join('');
+    const sp = S.sleevePat ? patSvg(S.sleevePat.p, S.sleevePat.c, 'sleeve') : '';
+    const cp = S.capPat ? patSvg(S.capPat.p, S.capPat.c, 'cap') : '';
+    return `<svg class="silk" viewBox="0 0 44 50" role="img" aria-label="Colours: ${esc(txt)}"><defs><clipPath id="sb-${uid}"><path d="${BODY}"/></clipPath><clipPath id="ss-${uid}"><path d="${SLV}"/></clipPath><clipPath id="sc-${uid}"><path d="${CAP}"/></clipPath></defs>`
+      + `<path d="${SLV}" fill="${S.sleeve}"/>${sp ? `<g clip-path="url(#ss-${uid})">${sp}</g>` : ''}<path d="${SLV}" ${ol}/>`
+      + `<path d="${BODY}" fill="${S.body}"/>${bp ? `<g clip-path="url(#sb-${uid})">${bp}</g>` : ''}<path d="${BODY}" ${ol}/>`
+      + `<path d="${PEAK}" fill="${S.cap}"/><path d="${PEAK}" ${ol}/><path d="${CAP}" fill="${S.cap}"/>${cp ? `<g clip-path="url(#sc-${uid})">${cp}</g>` : ''}<path d="${CAP}" ${ol}/></svg>`;
   }
-  const fmtOdds = o => { const v = String(o||'').trim(); if (!v) return ''; return (/^\d/.test(v) && !v.includes('/')) ? '$' + v.replace(/^\$/,'') : v; };
+  const fmtOdds = o => { const v = String(o||'').trim().replace(/^\$/,''); if (!v) return ''; if (/^\d+(\.\d+)?$/.test(v)) return '$' + (v.includes('.') ? (+v).toFixed(2) : v); return v; };
 
   // ---------- defaults ----------
   function defaultRaces(){
@@ -237,7 +417,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       id: +id, name: r.name || 'Race '+id, time: r.time || '', on: r.on !== false, cup: !!r.cup,
       price: +r.price || 0,
       split: PK.map((k,i) => r.split && r.split[k] != null ? +r.split[k] : [60,30,10][i]),
-      closed: !!r.closed,
+      closed: !!r.closed, override: !!r.override, announced: +r.announced || 0,
       field: ent(r.field).map(([n,h]) => ({ n:+n, name:h.name||'', j:h.j||'', odds:h.odds||'', c:h.c||'', scr:!!h.scr })).sort((a,b) => a.n-b.n),
       res: PK.map(k => r.res && r.res[k] ? +r.res[k] : null),
       picks: Object.fromEntries(ent(picksAll[id]).filter(([,pk]) => pk.pid))
@@ -245,6 +425,19 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     const players = ent(v.players).map(([id,p]) => ({ id, name: p.name || '' })).sort((a,b) => a.name.localeCompare(b.name));
     return { meta: v.meta || {}, races, players, paid: v.paid || {} };
   }
+  // Race times are typed like "3:00pm" and are all on Cup Day, Tuesday 3 Nov 2026, AEDT (UTC+11).
+  const RACE_DAY = [2026, 10, 3], RACE_TZ = 11;
+  function startTs(r){
+    const m = String(r.time||'').trim().toLowerCase().replace(/\s+/g,'').match(/^(\d{1,2})(?:[:.](\d{2}))?(am|pm)?$/);
+    if (!m) return 0;
+    let h = +m[1], mi = +(m[2]||0);
+    if (m[3] === 'pm' && h < 12) h += 12;
+    if (m[3] === 'am' && h === 12) h = 0;
+    if (!m[3] && h < 9) h += 12; // "3:00" on race day means 3pm
+    return Date.UTC(RACE_DAY[0], RACE_DAY[1], RACE_DAY[2], h - RACE_TZ, mi);
+  }
+  const byTime = r => !r.override && startTs(r) && Date.now() >= startTs(r);
+  const isClosed = r => r.closed || !!r.res[0] || byTime(r);
   const race = id => S.races.find(r => r.id === id);
   const horse = (r,n) => r.field.find(h => h.n === +n);
   const player = id => S.players.find(p => p.id === id);
@@ -277,6 +470,62 @@ const BASE = 'cupsweep/' + SWEEP_ID;
   }
   const paidAmt = (pid, sp) => Math.min(sp, +S.paid[pid] || 0);
 
+  // ---------- fun stuff, all derived from saved picks and results ----------
+  function oddsNum(o){
+    const v = String(o||'').replace(/^\$/,'').trim(); if (!v) return 0;
+    const f = v.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/); if (f) return 1 + (+f[1]) / (+f[2] || 1);
+    return parseFloat(v) || 0;
+  }
+  function drawTag(r, n){
+    const hz = horse(r, n) || {}, o = oddsNum(hz.odds || (r.picks[n] || {}).odds); if (!o) return '';
+    const all = r.field.filter(x => !x.scr).map(x => oddsNum(x.odds)).filter(Boolean);
+    if (all.length > 1 && o <= Math.min(...all)) return 'fav';
+    if (o >= 20) return 'roughie';
+    return '';
+  }
+  const TAGTXT = { fav: 'Favourite!', roughie: 'Roughie, big dreams' };
+  const resulted = () => S.races.filter(r => r.on && r.res[0]);
+  function badgesFor(C){
+    const b = {}; const add = (pid, k) => { (b[pid] = b[pid] || new Set()).add(k); };
+    const done = resulted();
+    // Hot streak: owned the winner in two resulted races in a row.
+    const streak = {}; done.forEach(r => { const w = r.picks[r.res[0]]; S.players.forEach(p => { streak[p.id] = (w && w.pid === p.id) ? (streak[p.id]||0) + 1 : 0; if (streak[p.id] >= 2) add(p.id, 'hot'); }); });
+    // Roughie Rider: owned a winner at $20 or longer.
+    done.forEach(r => { const w = r.picks[r.res[0]]; if (w && oddsNum((horse(r, r.res[0])||{}).odds || w.odds) >= 20) add(w.pid, 'roughie'); });
+    // Bridesmaid: most 2nds (at least 2). Wooden Spoon: most unplaced horses once 3+ races are run.
+    const seconds = {}, unplaced = {};
+    done.forEach(r => { const s = r.picks[r.res[1]]; if (s) seconds[s.pid] = (seconds[s.pid]||0) + 1;
+      Object.entries(r.picks).forEach(([n,pk]) => { const h = horse(r,n); if (h && !h.scr && r.res.indexOf(+n) < 0) unplaced[pk.pid] = (unplaced[pk.pid]||0) + 1; }); });
+    const top = (o, min) => { const m = Math.max(0, ...Object.values(o)); return m >= min ? Object.keys(o).filter(k => o[k] === m) : []; };
+    top(seconds, 2).forEach(p => add(p, 'bridesmaid'));
+    if (done.length >= 3) top(unplaced, 3).forEach(p => add(p, 'spoon'));
+    return b;
+  }
+  const BADGES = { hot: ['🔥','Hot streak'], roughie: ['🐎','Roughie Rider'], bridesmaid: ['💐','Bridesmaid'], spoon: ['🥄','Wooden Spoon'] };
+  const badgeHtml = (set, full) => set ? [...set].map(k => `<span class="badge" title="${BADGES[k][1]}">${BADGES[k][0]}${full ? ' ' + BADGES[k][1] : ''}</span>`).join('') : '';
+  function feedItems(C){
+    const ev = [];
+    S.races.filter(r => r.on).forEach(r => {
+      Object.entries(r.picks).forEach(([n,pk]) => { const hz = horse(r,n) || {}; ev.push({ at: pk.at || 0, html: `<b>${esc(pname(pk))}</b> drew No. ${n}${hz.name ? ' ' + esc(hz.name) : ''} in ${esc(r.name)}${fmtOdds(hz.odds) ? ' (' + esc(fmtOdds(hz.odds)) + ')' : ''}${drawTag(r,n) ? ` <span class="tag ${drawTag(r,n)}">${TAGTXT[drawTag(r,n)]}</span>` : ''}`, race: r.id }); });
+      if (r.announced && r.res[0]){
+        const ln = (C.info[r.id] || {lines:[]}).lines.find(l => l.i === 0);
+        ev.push({ at: r.announced, win: true, race: r.id, html: ln && ln.pk ? `🏆 <b>${esc(pname(ln.pk))}</b> wins ${money(ln.amt)} on ${esc(r.name)}!` : `🏆 Nobody had the ${esc(r.name)} winner, so ${money(ln ? ln.amt : 0)} jackpots on` });
+      }
+    });
+    return ev.sort((a,b) => b.at - a.at);
+  }
+  function wrappedStats(C){
+    const done = resulted(); if (!done.length) return null;
+    let big = null, roughie = null; const horses = {}, places = {};
+    done.forEach(r => (C.info[r.id] || {lines:[]}).lines.forEach(l => { if (l.pk && (!big || l.amt > big.amt)) big = { pid: l.pk.pid, amt: l.amt, race: r, n: l.n }; }));
+    done.forEach(r => { const w = r.picks[r.res[0]], o = oddsNum((horse(r, r.res[0])||{}).odds || (w||{}).odds); if (w && o && (!roughie || o > roughie.o)) roughie = { pid: w.pid, o, race: r, n: r.res[0] }; });
+    S.races.filter(r => r.on).forEach(r => Object.entries(r.picks).forEach(([n,pk]) => { const h = horse(r,n); if (h && !h.scr){ horses[pk.pid] = (horses[pk.pid]||0) + 1; if (r.res.indexOf(+n) >= 0) places[pk.pid] = (places[pk.pid]||0) + 1; } }));
+    const nets = S.players.map(p => ({ p, net: (C.won[p.id]||0) - (C.spent[p.id]||0), sp: C.spent[p.id]||0 })).filter(x => x.sp > 0).sort((a,b) => b.net - a.net);
+    const most = Object.entries(horses).sort((a,b) => b[1]-a[1])[0];
+    const pot = done.reduce((s,r) => s + ((C.info[r.id]||{}).pot || 0), 0);
+    return { done, big, roughie, lucky: nets[0], most: most ? { pid: most[0], n: most[1] } : null, horses, places, pot };
+  }
+
   // ---------- writes ----------
   function say(msg){ flash = msg; clearTimeout(flashTimer); flashTimer = setTimeout(() => { flash = ''; render(); }, 3500); render(); }
   async function save(updates, msg){
@@ -290,6 +539,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
   }
   async function pickHorse(r, pid){
     const pl = player(pid); if (!pl || busy) return;
+    if (isClosed(r)){ say('Picks have closed for this race.'); return; }
     busy = true; render();
     let chosen = null;
     try {
@@ -304,9 +554,13 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       });
       if (res.committed && chosen != null){
         reveal = { race: r.id, n: chosen, pid };
-        db.ref(BASE + '/meta/updatedAt').set(TS);
+        const after = res.snapshot.val() || {};
+        const left = r.field.filter(h => !h.scr && !after[h.n]).length;
+        const u = { 'meta/updatedAt': TS };
+        if (!left){ u[`races/${r.id}/closed`] = true; u[`races/${r.id}/override`] = false; }
+        db.ref(BASE).update(u);
         const h = horse(r, chosen) || {};
-        say(`${pl.name} got No. ${chosen}${h.name ? ' ' + h.name : ''}`);
+        say(`${pl.name} got No. ${chosen}${h.name ? ' ' + h.name : ''}${left ? '' : '. That was the last horse, so picks are closed.'}`);
       } else say('All the horses in this race are taken.');
     } catch(e){ say('Couldn’t pick just now. Check the connection and try again.'); }
     busy = false; render();
@@ -324,26 +578,26 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     if (!isOrg || !player(pickFor)) pickFor = isOrg ? (player(pickFor) ? pickFor : me) : me;
     let h = '';
     const upd = S.meta.updatedAt ? new Date(S.meta.updatedAt).toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit',timeZone:'Australia/Melbourne'}) : null;
-    h += `<header><div class="eyebrow">Flemington · Tuesday 3 November 2026</div><h1>Cup Day Sweep</h1>
-      <div class="mode"><span><i class="dot ${connected?'on':'off'}"></i>${connected?'Live':'Reconnecting…'}</span>${upd?`<span>Last change ${esc(upd)}</span>`:''}${isOrg?'<span>Organiser mode</span>':''}</div></header>`;
+    const status = `<span><i class="dot ${connected?'on':'off'}"></i>${connected?'Live':'Reconnecting…'}</span>${upd?`<span>Updated ${esc(upd)}</span>`:''}${isOrg?'<span>Organiser</span>':''}
+      ${alertsOn ? `<span class="alerts-on">🔔 Race alerts on</span>` : `<button class="alertbtn" data-act="alerts">🔔 Turn on race alerts</button>`}`;
+    if (banner) h += `<div class="banner" role="alert"><span>${esc(banner)}</span><button class="ghost" data-act="banner-x" aria-label="Dismiss">✕</button></div>`;
 
+    const B = badgesFor(C);
+    h += renderTicker(me);
+    const allRun = S.races.filter(x => x.on && Object.keys(x.picks).length).every(x => x.res[0]) && resulted().length > 0;
+    if (S.meta.wrapped || allRun) h += renderWrapped(C, me, B);
     if (isOrg) h += renderPlayersPanel();
-    h += renderMe(C, me);
+    h += renderMe(C, me, B);
 
-    const done = S.races.filter(x => x.on && x.res[0]).slice().reverse();
-    if (done.length){
-      h += `<section class="panel"><h2>Latest results</h2><div class="list">` + done.slice(0,4).map(x => {
-        const ln = C.info[x.id].lines.find(l => l.i===0), hz = horse(x, x.res[0]) || {};
-        return `<button class="li" data-act="sel" data-id="${x.id}"><span class="ids"><span class="cloth ${x.cup?'c':''} num">${x.res[0]}</span>${silk(hz.c,'lr-'+x.id)}</span><span class="main"><b>${esc(x.name)}${hz.name?' · '+esc(hz.name):''}</b><span class="owner">${ln && ln.pk ? `Won by <b>${esc(pname(ln.pk))}</b>` : 'Nobody had the winner, so the jackpot moves on'}</span></span><span class="amt num">${ln?money(ln.amt):''}</span></button>`;
-      }).join('') + `</div></section>`;
-    }
+    const feed = feedItems(C).slice(0, 8);
+    if (feed.length) h += `<section class="panel"><div class="head"><h2>What’s happening</h2><span class="small muted">Live</span></div><div class="feed">` + feed.map(e => `<button class="feeditem ${e.win?'win':''}" data-act="sel" data-id="${e.race}"><span>${e.html}</span><span class="small muted num">${new Date(e.at).toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit',timeZone:'Australia/Melbourne'})}</span></button>`).join('') + `</div></section>`;
 
-    h += `<nav class="strip" aria-label="Races">` + S.races.map(x => `<button class="chip ${x.id===sel?'sel':''} ${x.cup?'cup':''} ${x.on?'':'off'}" data-act="sel" data-id="${x.id}" aria-pressed="${x.id===sel}"><b>${x.cup?'CUP':'R'+x.id}</b><span>${!x.on?'No sweep':x.res[0]?'<span class="done">Done</span>':x.closed?'Closed':esc(x.time||'Open')}</span></button>`).join('') + `</nav>`;
+    h += `<nav class="strip" aria-label="Races">` + S.races.map(x => `<button class="chip ${x.id===sel?'sel':''} ${x.cup?'cup':''} ${x.on?'':'off'}" data-act="sel" data-id="${x.id}" aria-pressed="${x.id===sel}"><b>${x.cup?'CUP':'R'+x.id}</b><span>${!x.on?'No sweep':x.res[0]?`<span class="done">Won: ${x.res[0]}</span>`:isClosed(x)?'Closed':esc(x.time||'Open')}</span></button>`).join('') + `</nav>`;
     h += renderRace(r, C, me);
 
     if (S.players.length){
       const ranked = S.players.map(p => ({ p, won: C.won[p.id]||0, sp: C.spent[p.id]||0 })).sort((a,b) => b.won-a.won || a.sp-b.sp || a.p.name.localeCompare(b.p.name));
-      h += `<section class="panel"><div class="head"><h2>Standings</h2><span class="muted small">Won, then up or down</span></div><div class="list">` + ranked.map((x,i) => { const net = x.won - x.sp; return `<div class="li"><span class="amt muted num" style="font-size:15px;min-width:20px">${i+1}</span><span class="main"><b>${esc(x.p.name)}${x.p.id===me?' <span class="muted small">(you)</span>':''}</b><span class="owner num">Spent ${money(x.sp)}</span></span><span style="text-align:right"><span class="amt num">${money(x.won)}</span><br><span class="small num ${net>0?'pos-net':net<0?'neg-net':'muted'}">${net>=0?'+':'−'}${money(Math.abs(net))}</span></span></div>`; }).join('') + `</div></section>`;
+      h += `<section class="panel"><div class="head"><h2>Standings</h2><span class="muted small">Won, then up or down</span></div><div class="list">` + ranked.map((x,i) => { const net = x.won - x.sp; return `<div class="li"><span class="amt muted num" style="font-size:15px;min-width:20px">${i+1}</span><span class="main"><b>${esc(x.p.name)}${x.p.id===me?' <span class="muted small">(you)</span>':''} ${badgeHtml(B[x.p.id])}</b><span class="owner num">Spent ${money(x.sp)}</span></span><span style="text-align:right"><span class="amt num">${money(x.won)}</span><br><span class="small num ${net>0?'pos-net':net<0?'neg-net':'muted'}">${net>=0?'+':'−'}${money(Math.abs(net))}</span></span></div>`; }).join('') + `</div></section>`;
     }
     if (isOrg && S.players.length) h += renderPaid(C);
 
@@ -352,20 +606,130 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       <li>The pot is every horse bought. It pays 1st, 2nd and 3rd at the split shown on each race.</li>
       <li>If a horse nobody bought places, its share jackpots into the next race. In the last race it’s shared by everyone in it.</li>
       <li>If your horse is scratched, you get its money back. You can pick again.</li>
-      <li>Picks close just before each race jumps. Settle up with the organiser.</li>
+      <li>Picks close at race time, or as soon as the last horse is taken. Settle up with the organiser.</li>
+      <li>Tap <b>Turn on race alerts</b> and keep this page open. You’ll get a chime and a banner 5 minutes before each race, and the result pops up when the organiser announces it.</li>
       <li>Add this page to your home screen so it’s one tap away.</li>
     </ul></section>`;
     h += renderOrgLogin();
     if (busy || flash) h += `<div class="flash" role="status">${esc(busy ? 'Picking…' : flash)}</div>`;
+    const pop = popupRace();
+    if (pop) h += renderResultPopup(pop, C, me);
 
     const a = document.activeElement, af = a && a.id, ss = a && 'selectionStart' in a ? [a.selectionStart, a.selectionEnd] : null;
-    root.innerHTML = `<div class="wrap">${h}</div>`;
+    if (!root.querySelector('.wrap.app')) root.innerHTML = `<div class="wrap app">${heroShell('Flemington · Tuesday 3 November', '', true)}<div id="app-body" style="display:contents"></div></div>`;
+    document.getElementById('hero-status').innerHTML = status;
+    document.getElementById('app-body').innerHTML = h;
     if (af){ const el = document.getElementById(af); if (el){ el.focus(); if (ss && el.setSelectionRange) try { el.setSelectionRange(ss[0], ss[1]); } catch(_) {} } }
+    if (pop){
+      const k = pop.id + ':' + pop.announced, got = ((C.info[pop.id] || {lines:[]}).lines).filter(l => l.pk && l.pk.pid === me);
+      if (got.length && confettiKey !== k){ confettiKey = k; confetti(got.some(l => l.i === 0) ? 180 : 70); }
+    }
+  }
+
+  let confettiKey = null;
+  function confetti(count){
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cv = document.createElement('canvas'), dpr = window.devicePixelRatio || 1;
+    cv.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:40';
+    cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; document.body.appendChild(cv);
+    let ctx = null; try { ctx = cv.getContext('2d'); } catch(_) {}
+    if (!ctx){ cv.remove(); return; }
+    ctx.scale(dpr, dpr);
+    const cols = ['#c9a227','#d0202e','#1f8a3c','#2638a8','#f08cb4','#ffffff','#f6d31f'];
+    const ps = Array.from({ length: count }, () => ({ x: innerWidth/2 + (Math.random()-.5)*innerWidth*.3, y: innerHeight*.35, vx: (Math.random()-.5)*12, vy: -Math.random()*13 - 4, s: 5 + Math.random()*6, r: Math.random()*6, vr: (Math.random()-.5)*.35, c: cols[Math.random()*cols.length|0] }));
+    const t0 = performance.now();
+    (function step(t){
+      const el = t - t0; ctx.clearRect(0, 0, innerWidth, innerHeight);
+      ps.forEach(p => { p.vy += .32; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.globalAlpha = Math.max(0, 1 - el/3200); ctx.fillStyle = p.c; ctx.fillRect(-p.s/2, -p.s/4, p.s, p.s/2); ctx.restore(); });
+      if (el < 3200) requestAnimationFrame(step); else cv.remove();
+    })(t0);
+  }
+
+  // ---------- result pop-up ----------
+  const seenKey = id => 'cupsweep.seen.' + SWEEP_ID + '.' + id;
+  function popupRace(){
+    const due = S.races.filter(r => r.on && r.announced && r.res[0] && +(LS.get(seenKey(r.id)) || 0) < r.announced);
+    return due.sort((a,b) => b.announced - a.announced)[0] || null;
+  }
+  function renderResultPopup(r, C, me){
+    const ri = C.info[r.id] || { lines:[], pot:0 };
+    const mine = ri.lines.filter(l => l.pk && l.pk.pid === me).reduce((s,l) => s + l.amt, 0);
+    const hadHorse = me && Object.values(r.picks).some(pk => pk.pid === me);
+    let h = `<div class="overlay" role="dialog" aria-modal="true" aria-labelledby="pop-title"><div class="popup">
+      <span class="eyebrow">Race ${r.id} result</span><h2 id="pop-title">${esc(r.name)}</h2>`;
+    const myBest = ri.lines.filter(l => l.pk && l.pk.pid === me).map(l => l.i).sort()[0];
+    if (myBest === 0) h += `<div class="youwon">🏆 Winner! You collect <b class="num">${money(mine)}</b></div>`;
+    else if (mine > 0) h += `<div class="youwon close">So close! You ran ${PL[myBest]} and collect <b class="num">${money(mine)}</b></div>`;
+    else if (hadHorse) h += `<p class="muted">Not this time. Next race is another chance.</p>`;
+    h += `<div class="list">` + [0,1,2].map(i => {
+      const n = r.res[i]; if (!n) return '';
+      const hz = horse(r, n) || {n}, ln = ri.lines.find(l => l.i === i);
+      return `<div class="li"><span class="ids"><span class="place p${i+1}">${PL[i]}</span>${silk(hz.c,'pop-'+r.id+'-'+n)}</span><span class="main"><b>No. ${n} ${esc(hz.name||'')}</b><span class="owner">${ln && ln.pk ? `<b>${esc(pname(ln.pk))}</b>${ln.pk.pid===me?' (you)':''}` : `Unowned · ${ri.next ? 'jackpots to ' + esc(ri.next) : 'shared by everyone in this race'}`}</span></span><span class="amt num">${ln ? money(ln.amt) : ''}</span></div>`;
+    }).join('') + `</div><button class="primary big" data-act="pop-x" data-id="${r.id}" data-at="${r.announced}">Done</button></div></div>`;
+    return h;
+  }
+
+  // ---------- alerts ----------
+  let alertsOn = LS.get('cupsweep.alerts') === '1', actx = null, banner = '';
+  const AC = window.AudioContext || window.webkitAudioContext;
+  function chime(){
+    try {
+      if (!actx) return; actx.resume();
+      const t = actx.currentTime;
+      [880, 1320, 1760].forEach((f, i) => {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t + i*0.16); g.gain.exponentialRampToValueAtTime(0.3, t + i*0.16 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + i*0.16 + 0.4);
+        o.connect(g); g.connect(actx.destination); o.start(t + i*0.16); o.stop(t + i*0.16 + 0.45);
+      });
+    } catch(_) {}
+  }
+  function notify(text, withBanner){
+    if (!alertsOn) return;
+    chime();
+    try { if (navigator.vibrate) navigator.vibrate([250, 120, 250]); } catch(_) {}
+    try { if (document.hidden && 'Notification' in window && Notification.permission === 'granted') new Notification('Cup Day Sweep', { body: text }); } catch(_) {}
+    if (withBanner){ banner = text; render(); }
+  }
+  function enableAlerts(){
+    alertsOn = true; LS.set('cupsweep.alerts', '1');
+    try { if (!actx && AC) actx = new AC(); } catch(_) {}
+    chime();
+    try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); } catch(_) {}
+    say('Race alerts on. Keep this page open on the day.');
+  }
+  // Browsers only allow sound after a tap, so wake the audio on the first tap after a reload.
+  document.addEventListener('pointerdown', () => { if (!alertsOn || !AC) return; try { if (!actx) actx = new AC(); actx.resume(); } catch(_) {} }, { passive: true });
+  function checkReminders(){
+    if (!S || !S.races.length) return;
+    const now = Date.now();
+    S.races.forEach(r => {
+      const ts = startTs(r); if (!r.on || !ts || isClosed(r)) return;
+      const mins = (ts - now) / 60000, k = 'cupsweep.remind.' + SWEEP_ID + '.' + r.id + '.' + ts;
+      if (mins > 0 && mins <= 5 && !LS.get(k)){
+        LS.set(k, '1');
+        const mineIn = meId && Object.values(r.picks).some(pk => pk.pid === meId);
+        notify(`${r.name} jumps at ${r.time}. ${mineIn ? 'Your horses are in.' : 'Picks close then, so get yours in.'}`, true);
+      }
+    });
+  }
+  let lastAnnounced = null;
+  function checkAnnouncements(){
+    const cur = {}; S.races.forEach(r => cur[r.id] = r.announced);
+    if (lastAnnounced){
+      const fresh = S.races.find(r => r.announced && r.announced !== lastAnnounced[r.id]);
+      if (fresh) notify(`Result in for ${fresh.name}.`, false);
+    } else {
+      // First load: don't replay every old result, only the most recent unseen one.
+      const due = S.races.filter(r => r.announced && +(LS.get(seenKey(r.id)) || 0) < r.announced).sort((a,b) => b.announced - a.announced);
+      due.slice(1).forEach(r => LS.set(seenKey(r.id), String(r.announced)));
+    }
+    lastAnnounced = cur;
   }
 
   function renderSetup(){
     const hasPin = !!S.meta.pinHash;
-    root.innerHTML = `<div class="wrap"><header><div class="eyebrow">Flemington · Tuesday 3 November 2026</div><h1>Cup Day Sweep</h1></header>
+    root.innerHTML = `<div class="wrap">${heroShell("Flemington · Tuesday 3 November", "", true)}
       <section class="panel"><h2>Set up the sweep</h2>
       <p class="muted">${hasPin ? 'Enter the organiser PIN to create the races.' : 'Choose an organiser PIN. You’ll use it to unlock setup, scratchings and results on any device.'}</p>
       <form class="row" data-form="setup"><label class="f">${hasPin?'Organiser PIN':'New organiser PIN'}<input id="pin" type="password" inputmode="numeric" autocomplete="off" minlength="4" value="${esc(pinText)}"></label><button class="primary" type="submit">${hasPin?'Unlock and create races':'Save PIN and create races'}</button></form>
@@ -378,6 +742,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     h += S.players.length ? `<div class="players">${S.players.map(p => `<span class="pchip">${esc(p.name)}<button data-act="rmp" data-id="${esc(p.id)}" aria-label="Remove ${esc(p.name)}">×</button></span>`).join('')}</div>` : `<div class="empty">Add everyone who’s in today. They’ll choose their name from this list.</div>`;
     if (confirmKey && confirmKey.startsWith('rmp:')){ const p = player(confirmKey.slice(4)); if (p) h += `<div class="confirm"><span>${esc(p.name)} has horses already. Remove anyway? Their horses stay in the pots.</span><button class="danger" data-act="rmp-yes" data-id="${esc(p.id)}">Remove</button><button data-act="cancel">Cancel</button></div>`; }
     h += `<form class="row" data-form="addp"><label class="f">Add a player<input id="new-player" value="${esc(newPlayer)}" placeholder="Name" autocomplete="off" maxlength="40"></label><button type="submit">Add</button></form></section>`;
+    h = h.replace(/<\/section>$/, `<div class="row"><button data-act="wrapped">${S.meta.wrapped ? 'Hide Cup Day Wrapped' : 'Show Cup Day Wrapped to everyone'}</button><span class="small muted">It also appears by itself once every race with horses has a result.</span></div></section>`);
     return h + renderImport();
   }
 
@@ -404,12 +769,36 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     const hz = horse(r,n) || {n:+n}, pl = r.res.indexOf(+n), ln = C.info[r.id] ? C.info[r.id].lines.find(l => l.n === +n) : null;
     const state = hz.scr ? 'Scratched, refunded' : pl >= 0 ? `<span class="place p${pl+1}">${PL[pl]}</span>` : r.res[0] ? 'Unplaced' : (r.time ? 'Runs '+esc(r.time) : 'Yet to run');
     const od = fmtOdds(hz.odds || pk.odds);
-    return `<button class="li" data-act="sel" data-id="${r.id}"><span class="ids"><span class="cloth ${r.cup?'c':''} num">${n}</span>${silk(hz.c, uid)}</span><span class="main"><b>${esc(hz.name || 'No. '+n)}</b><span class="owner">${esc(r.name)} · ${state}</span>${hz.j||hz.c?`<span class="jock">${hz.j?esc(hz.j):''}${hz.j&&hz.c?' · ':''}${esc(hz.c||'')}</span>`:''}</span><span style="text-align:right">${ln?`<span class="amt num pos-net">+${money(ln.amt)}</span><br>`:''}${od?`<span class="odds num">${esc(od)}</span>`:''}</span></button>`;
+    return `<button class="li" data-act="sel" data-id="${r.id}"><span class="ids"><span class="cloth ${r.cup?'c':''} num">${n}</span>${silk(hz.c, uid)}</span><span class="main"><b>${esc(hz.name || 'No. '+n)}</b><span class="owner">${esc(r.name)} · ${state}</span>${hz.j?`<span class="jock">${esc(hz.j)}</span>`:''}</span><span style="text-align:right">${ln?`<span class="amt num pos-net">+${money(ln.amt)}</span><br>`:''}${od?`<span class="odds num">${esc(od)}</span>`:''}</span></button>`;
   }
 
-  function renderMe(C, me){
-    let h = `<section class="panel ${me?'me':''}"><div class="head"><h2>${me ? esc(player(me).name) + '’s horses' : 'Your horses'}</h2>`;
-    if (S.players.length) h += `<label class="f" style="min-width:160px">I am<select id="me-pick"><option value="">Choose your name</option>${S.players.map(p => `<option value="${esc(p.id)}" ${p.id===me?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label>`;
+  function renderTicker(me){
+    const now = Date.now();
+    const up = S.races.filter(r => r.on && !r.res[0] && startTs(r) && startTs(r) > now - 20*60000).sort((a,b) => startTs(a) - startTs(b))[0];
+    if (!up) return '';
+    const mins = Math.round((startTs(up) - now) / 60000);
+    const when = mins > 90 ? `at ${esc(up.time)}` : mins > 1 ? `in ${mins} min` : mins >= 0 ? 'any moment' : 'running now';
+    const mine = me ? Object.entries(up.picks).filter(([n,pk]) => pk.pid === me).map(([n]) => 'No. ' + n) : [];
+    return `<button class="ticker ${mins <= 5 ? 'soon' : ''}" data-act="sel" data-id="${up.id}"><span class="eyebrow">Next jump</span><b>${up.cup ? '🏆 ' : ''}${esc(up.name)} ${when}</b><span class="small">${mine.length ? `Your horses: ${mine.join(', ')}` : isClosed(up) ? 'Picks closed' : 'Picks open, so tap to get a horse'}</span></button>`;
+  }
+
+  function renderWrapped(C, me, B){
+    const W = wrappedStats(C); if (!W) return '';
+    const nm = pid => esc((player(pid) || {}).name || 'Someone');
+    const meLine = me ? (() => { const sp = C.spent[me]||0, won = C.won[me]||0, net = won - sp; return `<div class="wcard you"><span class="eyebrow">Your day</span><b>${W.horses[me]||0} horses · ${W.places[me]||0} placed</b><span class="num">Won ${money(won)} · ${net>=0?'up':'down'} ${money(Math.abs(net))}</span><span>${badgeHtml(B[me], true)}</span></div>`; })() : '';
+    return `<section class="panel wrapped"><div class="head"><h2>🏇 Cup Day Wrapped</h2><span class="small muted num">${W.done.length} race${W.done.length===1?'':'s'} · ${money(W.pot)} paid out</span></div><div class="wgrid">
+      ${meLine}
+      ${W.big ? `<div class="wcard"><span class="eyebrow">Biggest win</span><b>${nm(W.big.pid)}</b><span class="num">${money(W.big.amt)} · ${esc(W.big.race.name)}</span></div>` : ''}
+      ${W.lucky ? `<div class="wcard"><span class="eyebrow">Luckiest punter</span><b>${esc(W.lucky.p.name)}</b><span class="num">${W.lucky.net>=0?'Up':'Down'} ${money(Math.abs(W.lucky.net))} on the day</span></div>` : ''}
+      ${W.roughie ? `<div class="wcard"><span class="eyebrow">Best roughie</span><b>${nm(W.roughie.pid)}</b><span class="num">No. ${W.roughie.n} ${esc((horse(W.roughie.race, W.roughie.n)||{}).name||'')} at $${W.roughie.o}</span></div>` : ''}
+      ${W.most ? `<div class="wcard"><span class="eyebrow">Most horses</span><b>${nm(W.most.pid)}</b><span class="num">${W.most.n} horses</span></div>` : ''}
+      ${Object.keys(B).filter(pid => B[pid].has('spoon')).length ? `<div class="wcard"><span class="eyebrow">Wooden spoon 🥄</span><b>${Object.keys(B).filter(pid => B[pid].has('spoon')).map(nm).join(' & ')}</b><span>Better luck next year</span></div>` : ''}
+    </div></section>`;
+  }
+
+  function renderMe(C, me, B){
+    let h = `<section class="panel ${me?'me':''}"><div class="head"><h2>${me ? esc(player(me).name) + '’s horses' : 'Your horses'} ${me ? badgeHtml((B||{})[me]) : ''}</h2>`;
+    if (S.players.length) h += `<label class="whoami ${me?'':'need'}">Who are you?<select id="me-pick"><option value="">Choose your name</option>${S.players.map(p => `<option value="${esc(p.id)}" ${p.id===me?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label>`;
     h += `</div>`;
     if (!me) return h + `<p class="muted small">${S.players.length ? 'Choose your name to pick horses and see what you’ve spent, owe and won.' : 'The organiser hasn’t added players yet.'}</p></section>`;
     const won = C.won[me]||0, sp = C.spent[me]||0, pd = paidAmt(me, sp), due = Math.max(0, sp-pd), net = won - sp;
@@ -424,16 +813,33 @@ const BASE = 'cupsweep/' + SWEEP_ID;
   function renderRace(r, C, me){
     const ri = C.info[r.id] || {pot:0,jin:0,lines:[],counted:0};
     const liveH = r.field.filter(x => !x.scr), avail = liveH.filter(x => !r.picks[x.n]);
-    const open = r.on && !r.closed && !r.res[0];
-    const pill = !r.on ? ['No sweep',''] : r.res[0] ? ['Result in','res'] : r.closed ? ['Picks closed',''] : ['Picks open','open'];
+    const open = r.on && !isClosed(r);
+    const pill = !r.on ? ['No sweep',''] : r.res[0] ? ['Result in','res'] : isClosed(r) ? ['Picks closed',''] : ['Picks open','open'];
     let h = `<section class="panel"><div class="racehead"><div style="display:grid;gap:6px;min-width:0"><span class="eyebrow">Race ${r.id}${r.time?' · '+esc(r.time):''}</span><h2>${esc(r.name)}</h2><span><span class="pill ${pill[1]}">${pill[0]}</span></span></div>`;
     if (r.on) h += `<div class="pot"><span class="eyebrow">Pot</span><b class="num">${money(ri.pot)}</b><span class="muted small num">${money(r.price)} a horse · pays ${r.split.join('/')}${ri.jin>0?'<br>incl. '+money(ri.jin)+' jackpot':''}</span></div>`;
     h += `</div>`;
     if (!r.on){ h += `<p class="muted">No sweep on this race.</p>`; return h + (isOrg ? renderTools(r) : '') + `</section>`; }
 
-    if (reveal && reveal.race === r.id){
-      const hz = horse(r, reveal.n) || {n:reveal.n}, who = (player(reveal.pid)||{}).name || '';
-      h += `<div class="reveal" role="status"><div class="big-ids"><span class="cloth ${r.cup?'c':''} num">${reveal.n}</span>${silk(hz.c,'rv')}</div><div style="display:grid;gap:3px;min-width:0"><span class="eyebrow">${esc(who)} got</span><h3>${esc(hz.name || 'No. '+reveal.n)}</h3>${hz.j||hz.c?`<span class="jock">${[hz.j, hz.c].filter(Boolean).map(esc).join(' · ')}</span>`:''}${fmtOdds(hz.odds)?`<span class="odds num">${esc(fmtOdds(hz.odds))}</span>`:''}</div></div>`;
+    // Every horse the current picker holds in this race, newest first, the latest pick highlighted.
+    const holder = isOrg ? pickFor : me;
+    const held = holder ? Object.entries(r.picks).filter(([n,pk]) => pk.pid === holder).sort((a,b) => (b[1].at||0) - (a[1].at||0)) : [];
+    if (held.length){
+      const who = (player(holder) || {}).name || '';
+      h += `<div style="display:grid;gap:8px"><div class="head"><h3>${esc(who)}’s horses in this race</h3><span class="small muted num">${held.length} · ${money(held.filter(([n]) => !(horse(r,n)||{}).scr).length * r.price)}</span></div><div class="mygrid">` +
+        held.map(([n,pk]) => {
+          const hz = horse(r,n) || {n:+n}, fresh = reveal && reveal.race === r.id && reveal.n === +n, pl = r.res.indexOf(+n), od = fmtOdds(hz.odds || pk.odds);
+          return `<div class="mycard ${fresh?'fresh':''} ${hz.scr?'scr':''}"><div class="big-ids"><span class="cloth ${r.cup?'c':''} num">${n}</span>${silk(hz.c,'my-'+r.id+'-'+n)}</div><div style="display:grid;gap:2px;min-width:0">${fresh?`<span class="eyebrow">Just picked${drawTag(r,n) ? ` · <span class="tag ${drawTag(r,n)}">${TAGTXT[drawTag(r,n)]}</span>` : ''}</span>`:''}<b class="hname">${esc(hz.name || 'No. '+n)}</b>${hz.j?`<span class="jock">${esc(hz.j)}</span>`:''}<span>${hz.scr?'<span class="small neg-net">Scratched, refunded</span>':''}${pl>=0?`<span class="place p${pl+1}">${PL[pl]}</span> `:''}${od?`<span class="odds num">${esc(od)}</span>`:''}</span></div></div>`;
+        }).join('') + `</div></div>`;
+    }
+    if (!open && r.on && !r.res[0] && byTime(r) && !r.closed) h += `<div class="note">Picks closed automatically at the race time (${esc(r.time)}).</div>`;
+
+    // Organiser result pad: tap the winner, then 2nd, then 3rd, then announce.
+    if (isOrg && r.on && isClosed(r) && r.field.length){
+      const next = r.res.indexOf(null);
+      h += `<div class="resultpad"><div class="head"><h3>${r.announced ? 'Result' : 'Enter the result'}</h3><span class="small muted">${next >= 0 ? `Tap the ${PL[next]} place horse` : 'Tap a horse again to remove it'}</span></div>
+        <div class="slots">${[0,1,2].map(i => { const n = r.res[i], hz = n ? horse(r,n) || {} : null; return `<div class="slot ${n?'set':''} ${i===next?'next':''}"><span class="place p${i+1}">${PL[i]}</span>${n ? `<b class="num">No. ${n}</b><span class="small">${esc(hz.name||'')}</span>` : '<span class="small muted">—</span>'}</div>`; }).join('')}</div>
+        <div class="padgrid">${r.field.filter(x => !x.scr).map(x => { const pl = r.res.indexOf(x.n), pk = r.picks[x.n]; return `<button class="padkey ${pl>=0?'on':''}" data-act="rtap" data-n="${x.n}" aria-label="No. ${x.n} ${esc(x.name)}${pl>=0?', '+PL[pl]:''}">${pl>=0?`<span class="place p${pl+1}">${PL[pl]}</span>`:''}<span class="cloth ${r.cup?'c':''} num">${x.n}</span><span class="padname">${esc(x.name || '')}</span><span class="padown">${pk ? esc(pname(pk)) : ''}</span></button>`; }).join('')}</div>
+        <div class="row"><button class="primary big" data-act="announce" ${r.res[0]?'':'disabled'}>${r.announced ? 'Announce again' : 'Announce result to everyone'}</button>${r.res.some(Boolean) ? '<button class="ghost" data-act="rclear">Clear result</button>' : ''}</div></div>`;
     }
 
     if (open){
@@ -452,7 +858,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     if (r.field.length){
       h += `<div class="list">` + r.field.map(hz => {
         const pk = r.picks[hz.n], pl = r.res.indexOf(hz.n), mine = pk && pk.pid === me, od = fmtOdds(hz.odds);
-        return `<div class="li rn ${hz.scr?'scr':''} ${mine?'mine':''}"><span class="ids"><span class="cloth ${r.cup?'c':''} num">${hz.n}</span>${silk(hz.c,'f-'+r.id+'-'+hz.n)}</span>
+        return `<div class="li rn ${hz.scr?'scr':''} ${mine?'mine':''}"><span class="ids"><span class="cloth ${r.cup?'c':''} ${pk&&!hz.scr&&!mine?'taken':''} num" ${pk&&!hz.scr&&!mine?'aria-label="Taken"':''}>${hz.n}</span>${silk(hz.c,'f-'+r.id+'-'+hz.n)}</span>
           <span class="main"><b class="hname">${esc(hz.name || 'No. '+hz.n)}</b>
           <span class="owner ${!pk&&!hz.scr&&open?'free':''}">${hz.scr ? (pk ? `Scratched · ${esc(pname(pk))} refunded` : 'Scratched') : pk ? `<b>${esc(pname(pk))}</b>${mine?' (you)':''}` : open ? 'Available' : 'Unowned'}</span>
           ${hz.j||hz.c?`<span class="jock">${hz.j?esc(hz.j):''}${hz.j&&hz.c?' · ':''}${esc(hz.c||'')}</span>`:''}</span>
@@ -460,7 +866,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       }).join('') + `</div>`;
     }
 
-    if (r.closed || r.res[0] || ri.counted){
+    if (isClosed(r) || ri.counted){
       h += `<div style="display:grid;gap:6px"><h3>Payouts</h3><div class="list">` + [0,1,2].map(i => {
         const ln = ri.lines.find(l => l.i===i), amt = ri.pot*(r.split[i]||0)/100, hz = ln ? (horse(r, ln.n)||{}) : {};
         return `<div class="li"><span class="place p${i+1}">${PL[i]}</span><span class="main">${ln ? (ln.pk ? `<b>${esc(pname(ln.pk))}</b><span class="owner">No. ${ln.n}${hz.name?' · '+esc(hz.name):''}</span>` : `<b>Unowned</b><span class="owner">No. ${ln.n} · ${ri.next?'jackpots to '+esc(ri.next):'shared by everyone in this race'}</span>`) : `<span class="muted">${r.split[i]}% of the pot</span>`}</span><span class="amt num">${money(amt)}</span></div>`;
@@ -482,10 +888,11 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       <div class="row">${[0,1,2].map(i => `<label class="f">${PL[i]} %<input id="t-sp${i}" data-split="${i}" type="number" inputmode="numeric" min="0" max="100" value="${r.split[i]}"></label>`).join('')}</div>
       ${okSplit ? '' : '<p class="warn">The split should add up to 100%.</p>'}`;
     if (r.on){
-      if (!r.res[0]) h += `<div class="row"><button data-act="close">${r.closed ? 'Reopen picks' : 'Close picks (race about to start)'}</button></div>`;
+      if (!r.res[0]) h += `<div class="row"><button data-act="close">${isClosed(r) ? 'Reopen picks' : 'Close picks now'}</button><span class="small muted">${startTs(r) ? `Closes automatically at ${esc(r.time)}${r.override ? ' (reopened, so it won’t)' : ''}.` : 'Enter a race time above to close picks automatically.'}</span></div>`;
       if (r.field.length){
         const liveH = r.field.filter(x => !x.scr);
-        h += `<div style="display:grid;gap:8px"><h3>Result</h3><div class="results">` + [0,1,2].map(i => `<label class="f">${PL[i]}<select id="res-${r.id}-${i}" data-res="${i}"><option value="">—</option>${liveH.map(x => `<option value="${x.n}" ${r.res[i]===x.n?'selected':''}>${x.n}${x.name?' · '+esc(x.name):''}${r.picks[x.n]?' ('+esc(pname(r.picks[x.n]))+')':''}</option>`).join('')}</select></label>`).join('') + `</div></div>`;
+        h += `<div style="display:grid;gap:8px"><h3>Result</h3><div class="results">` + [0,1,2].map(i => `<label class="f">${PL[i]}<select id="res-${r.id}-${i}" data-res="${i}"><option value="">—</option>${liveH.map(x => `<option value="${x.n}" ${r.res[i]===x.n?'selected':''}>${x.n}${x.name?' · '+esc(x.name):''}${r.picks[x.n]?' ('+esc(pname(r.picks[x.n]))+')':''}</option>`).join('')}</select></label>`).join('') + `</div>
+          <div class="row"><button class="primary" data-act="announce" ${r.res[0]?'':'disabled'}>${r.announced ? 'Announce again' : 'Announce result to everyone'}</button><span class="small muted">${r.announced ? 'Announced. Every open phone has shown the result.' : 'Pops up the placings and payouts on every open phone.'}</span></div></div>`;
       }
     }
     h += `<div style="display:grid;gap:8px"><h3>Field</h3>`;
@@ -566,6 +973,16 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     if (act === 'sel'){ sel = +b.dataset.id; LS.set('cupsweep.sel.'+SWEEP_ID, String(sel)); confirmKey = null; pasteText = ''; if (reveal && reveal.race !== sel) reveal = null; render(); const s = document.querySelector('.strip'); if (s) window.scrollTo({ top: s.getBoundingClientRect().top + window.scrollY - 10, behavior: 'smooth' }); return; }
     if (act === 'pick'){ const who = isOrg ? pickFor : meId; if (who && r) pickHorse(r, who); return; }
     if (act === 'cancel'){ confirmKey = null; render(); return; }
+    if (act === 'alerts'){ enableAlerts(); return; }
+    if (act === 'banner-x'){ banner = ''; render(); return; }
+    if (act === 'pop-x'){
+      LS.set(seenKey(b.dataset.id), b.dataset.at);
+      // Move on to the next race that's still taking picks, or the next one waiting on a result.
+      const nx = S.races.find(x => x.on && x.field.length && !isClosed(x)) || S.races.find(x => x.on && !x.res[0]);
+      if (nx){ sel = nx.id; LS.set('cupsweep.sel.'+SWEEP_ID, String(sel)); reveal = null; }
+      render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return;
+    }
+    if (act === 'wrapped' && isOrg){ save({ 'meta/wrapped': S.meta.wrapped ? null : TS }, S.meta.wrapped ? 'Wrapped hidden' : 'Cup Day Wrapped is showing on every phone'); return; }
     if (!isOrg) return;
     if (act === 'ra-read'){ importPreview = parseRA(importText); render(); return; }
     if (act === 'ra-clear'){ importText = ''; importPreview = null; render(); return; }
@@ -593,7 +1010,20 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     }
     if (act === 'rmp-yes'){ confirmKey = null; save({ ['players/'+b.dataset.id]: null }, 'Player removed'); return; }
     if (act === 'scr'){ const hz = horse(r, b.dataset.n); if (!hz) return; const u = { [`races/${r.id}/field/${hz.n}/scr`]: !hz.scr }; if (!hz.scr) PK.forEach((k,i) => { if (r.res[i] === hz.n) u[`races/${r.id}/res/${k}`] = null; }); save(u, `No. ${hz.n} ${hz.scr?'back in':'scratched'}`); }
-    else if (act === 'close') save({ [`races/${r.id}/closed`]: !r.closed }, r.closed ? `Picks reopened for ${r.name}` : `Picks closed for ${r.name}`);
+    else if (act === 'close'){
+      const shut = isClosed(r);
+      save(shut ? { [`races/${r.id}/closed`]: false, [`races/${r.id}/override`]: byTime(r) } : { [`races/${r.id}/closed`]: true, [`races/${r.id}/override`]: false }, shut ? `Picks reopened for ${r.name}` : `Picks closed for ${r.name}`);
+    }
+    else if (act === 'rtap'){
+      const n = +b.dataset.n, arr = r.res.slice(), at = arr.indexOf(n);
+      if (at >= 0) arr[at] = null;
+      else { const j = arr.indexOf(null); if (j < 0){ say('All three places are filled. Tap one to remove it first.'); return; } arr[j] = n; }
+      const u = { [`races/${r.id}/closed`]: true };
+      PK.forEach((k,i) => u[`races/${r.id}/res/${k}`] = arr[i] || null);
+      save(u, at >= 0 ? `No. ${n} removed` : `No. ${n} ${PL[arr.indexOf(n)]}`);
+    }
+    else if (act === 'rclear') save({ [`races/${r.id}/res`]: null, [`races/${r.id}/announced`]: null }, 'Result cleared');
+    else if (act === 'announce'){ if (r.res[0]) save({ [`races/${r.id}/announced`]: TS }, `Result announced for ${r.name}`); }
     else if (act === 'paste'){
       const f = parseField(pasteText);
       if (!f.length){ say('No lines started with a horse number.'); return; }
@@ -667,6 +1097,9 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     }
   });
 
+  // Every 20 seconds: race-time reminders, and redraw so races close on time.
+  setInterval(() => { if (!S) return; checkReminders(); if (editing()) pendingRender = true; else render(); }, 20000);
+
   root.addEventListener('focusout', () => { setTimeout(() => { if (pendingRender && !editing()) render(); }, 50); });
 
   // ---------- live data ----------
@@ -678,9 +1111,10 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       const saved = LS.get('cupsweep.pin.'+SWEEP_ID);
       isOrg = !!(saved && S.meta.pinHash && saved === S.meta.pinHash);
     } else if (isOrg && S.meta.pinHash && LS.get('cupsweep.pin.'+SWEEP_ID) !== S.meta.pinHash) isOrg = false;
+    checkAnnouncements();
     if (editing()) pendingRender = true; else render();
   }, err => {
-    root.innerHTML = `<div class="wrap"><header><h1>Cup Day Sweep</h1></header><section class="panel"><h2>Can’t read the sweep</h2><p>${esc(/permission/i.test(err.message) ? 'The Firebase rules don’t allow reading /cupsweep. Add the rule from the setup notes.' : err.message)}</p></section></div>`;
+    root.innerHTML = `<div class="wrap">${heroShell("Flemington · Tuesday 3 November", "", false)}<section class="panel"><h2>Can’t read the sweep</h2><p>${esc(/permission/i.test(err.message) ? 'The Firebase rules don’t allow reading /cupsweep. Add the rule from the setup notes.' : err.message)}</p></section></div>`;
   });
 })();
 </script>
