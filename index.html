@@ -45,14 +45,13 @@ code{font-size:15px;background:var(--bg);padding:1px 6px;border-radius:4px}
 .hero h1{color:var(--on-solid);grid-column:1}
 .hero .trophy{grid-column:2;grid-row:1 / span 3;width:clamp(76px,22vw,112px);height:auto;align-self:start;filter:drop-shadow(0 3px 0 rgba(0,0,0,.25))}
 .hero .mode{grid-column:1 / -1;color:var(--on-solid)}
-.hero .track{grid-column:1 / -1;position:relative;height:66px;margin:6px -18px 0}
+.hero .track{grid-column:1 / -1;position:relative;height:96px;margin:2px -18px 0}
 .hero .rail{position:absolute;left:0;right:0;bottom:12px;height:4px;background:var(--on-solid)}
 .hero .rail::after{content:"";position:absolute;left:0;right:0;top:10px;height:2px;background:var(--on-solid);opacity:.45}
-.hero .runner{position:absolute;bottom:15px;left:58%;width:94px;height:auto}
+.hero .runner{position:absolute;bottom:13px;left:55%;width:132px;height:auto}
 @media (prefers-reduced-motion:no-preference){
-  .hero .runner{left:0;animation:gallop 14s linear infinite, bob .42s ease-in-out infinite alternate}
-  @keyframes gallop{0%{transform:translateX(-120px)}55%{transform:translateX(calc(100vw + 40px))}100%{transform:translateX(calc(100vw + 40px))}}
-  @keyframes bob{to{margin-bottom:3px}}
+  .hero .runner{left:0;animation:gallop 11s linear infinite}
+  @keyframes gallop{0%{transform:translateX(-150px)}60%{transform:translateX(calc(100vw + 20px))}100%{transform:translateX(calc(100vw + 20px))}}
 }
 .mode{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;font-size:16px;font-weight:600}
 .mode span{display:inline-flex;align-items:center;gap:7px}
@@ -220,6 +219,22 @@ details>summary{cursor:pointer;font-weight:800;color:var(--turf);padding:8px 0;f
 .wcard{display:grid;gap:4px;padding:14px;border-radius:12px;background:var(--surface);border:2px solid var(--line);min-width:0}
 .wcard b{font-family:var(--display);font-size:24px;font-weight:900;overflow-wrap:anywhere}
 .wcard.you{border:3px solid var(--turf)}
+.settle{border:3px solid var(--gold);background:var(--gold-soft)}
+.settle h2{color:var(--ink)}
+.settle-amt{font-size:30px}
+.payid{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:10px 10px 10px 16px}
+.payid span{font-family:var(--display);font-size:30px;font-weight:900;letter-spacing:.03em;flex:1 1 auto;user-select:all;-webkit-user-select:all}
+.settle-done{font-size:20px;font-weight:800;color:var(--turf)}
+.settle-sum{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.oddsbox{display:grid;justify-items:end;line-height:1.15}
+.plodds{font-size:15px;font-weight:700;color:var(--muted);white-space:nowrap}
+.sumnote{font-weight:600;color:var(--muted);font-size:15px;margin-left:4px}
+.oddsgrid{display:grid;grid-template-columns:auto minmax(0,1fr) 88px 88px;gap:8px 10px;align-items:center}
+.oddsgrid .oh{font-size:13px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.oddsgrid .oname{font-weight:700;overflow-wrap:anywhere;line-height:1.2}
+.oddsgrid input{width:100%;text-align:center;font-family:var(--display);font-weight:850;font-size:21px;padding:8px 4px}
+.oddsgrid input:placeholder-shown{background:var(--gold-soft);border-color:var(--gold)}
+@media (max-width:420px){.oddsgrid{grid-template-columns:auto minmax(0,1fr) 74px 74px;gap:8px 6px}.oddsgrid input{font-size:19px}}
 .empty{padding:16px;border:2px dashed var(--line);border-radius:10px;text-align:center;color:var(--muted);font-size:17px;font-weight:600}
 @media (max-width:480px){.results{grid-template-columns:1fr}.pot{text-align:left}.totals{gap:6px}.tot b{font-size:23px}.slots{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.chip,button{transition:border-color .15s,background .15s}}
@@ -267,7 +282,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
 
   // ---------- race-day hero ----------
   const TROPHY_SVG = `<svg class="trophy" viewBox="0 0 80 80" role="img" aria-label="The Melbourne Cup"><g fill="#e8b923"><path d="M14 8 H66 V11 H63 C63 30 56 40 44 44 V50 C44 52 46 53 48 54 H32 C34 53 36 52 36 50 V44 C24 40 17 30 17 11 H14 Z"/><path d="M17 14 C6 14 4 26 12 31 C15 33 19 33 21 31 L19 28 C17 30 14 30 12 28 C8 24 10 18 17 18 Z"/><path d="M63 14 C74 14 76 26 68 31 C65 33 61 33 59 31 L61 28 C63 30 66 30 68 28 C72 24 70 18 63 18 Z"/><path d="M34 4 C34 0 46 0 46 4 C46 6 43 7 40 7 C37 7 34 6 34 4 Z"/><path d="M30 54 H50 L54 62 H26 Z"/></g><rect x="22" y="62" width="36" height="12" rx="1.5" fill="#5a3418"/><rect x="25" y="65" width="30" height="6" fill="#e8b923"/><path d="M22 13 C23 28 29 37 38 40" stroke="#fff6cf" stroke-width="2.4" fill="none" opacity=".75"/></svg>`;
-  const RUNNER_SVG = `<svg class="runner" viewBox="0 0 110 64" aria-hidden="true"><path fill="#fff" d="M19 22 C12 19 5 21 0 27 C3 26 6 26 8 27 C5 29 3 31 2 34 C7 30 12 28 18 28 Z"/><path fill="#fff" d="M18 21 C26 17 40 17 51 19 C56 19 60 17 64 13 C68 8 73 4 79 3 L81 0 L82.5 3 C87 4 92 8 96 13 C97.5 15 97 17.5 94.5 17.5 C91.5 17.5 89 16 86.5 15 C83.5 17 80.5 21 77 26 C75.5 28.5 75 31 75.5 33 L85 36.5 L93.5 36.5 L96.5 39 L92 39.5 L84 39.5 L73 37.5 L75.5 43 L71 50.5 L68.5 50 L71.5 43.5 L66 38.5 C58 40.5 46 40.5 38 38.5 L42 46 L46 53 L43.5 54 L38.5 47 L32 40.5 L23 45 L12 49 L9 51.5 L7.5 49.5 L11 46.5 L21 41 C17.5 39 16 36 16 32 C15.5 28 16 24 18 21 Z"/><g fill="#e8b923"><path d="M52 18 C51 14 53 11 57 9.5 L66 7 C68.5 6.5 70 7.5 69.5 9 L60 12.5 C58 14 57 16 57.5 19 Z"/><path d="M66 8 L75 9.5 L74.5 11 L65 11 Z"/><path d="M55 18 L61 24 L59.5 25.5 L53.5 20 Z"/><circle cx="70.5" cy="5" r="3.1"/></g></svg>`;
+  const RUNNER_SVG = `<svg class="runner" viewBox="8 -2 150 112" aria-hidden="true"><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -2.2;0 0;0 -1;0 0" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" repeatCount="indefinite"/><g transform="translate(114 57)"><g><animateTransform attributeName="transform" type="rotate" values="-42;-12;32;8;-42" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.300s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-5.5 -6 C-5.5 -9 5.5 -9 5.5 -6 L3.6 23 C3.4 25 -3.2 25 -3.4 23 Z" fill="#cfd8d1"/><g transform="translate(0 23)"><g><animateTransform attributeName="transform" type="rotate" values="0;0;18;105;0" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.300s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.8 -1 L2.8 -1 L2.2 21 L-2.2 21 Z M-3.4 20 L3.8 20 L4.9 25 L-3.2 25 Z" fill="#cfd8d1"/></g></g></g></g><g transform="translate(64 53)"><g><animateTransform attributeName="transform" type="rotate" values="-34;-4;38;22;-34" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.060s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-9 -9 C-9 -14 9 -14 9 -7 L3.8 24 C3.5 26 -3.2 26 -3.6 24 Z" fill="#cfd8d1"/><g transform="translate(0 24)"><g><animateTransform attributeName="transform" type="rotate" values="34;14;-6;-62;34" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.060s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.8 -1 L2.8 -1 L2.2 21 L-2.2 21 Z M-3.4 20 L3.8 20 L4.9 25 L-3.2 25 Z" fill="#cfd8d1"/></g></g></g></g><path d="M48 40 C38 35 25 37 13 47 C21 45 29 45 37 47 C29 51 23 57 19 64 C31 57 40 52 49 49 Z" fill="#ffffff"/><path d="M52 36 C60 31 72 31 84 33 C92 34 98 32 103 27 C110 19 118 11 128 7 L130 1.5 L132.8 6.2 C139 7 146 12 152 19 C155 23 154 27.5 150 27.5 C145 27.5 141 25 137 23 C133 25 127 31 122 40 C119 48 116 55 110 60 C100 65 86 65.5 74 65 C68 65 63 66 58 64 C49 62 43 55 43 47 C43 41 46 37 52 36 Z" fill="#ffffff"/><path d="M103 27 C110 18 118 11 127 7.5 C121 13 114 21 109 29 Z" fill="#dfe6e0"/><circle cx="142.5" cy="15" r="1.6" fill="#083d24"/><path d="M147 23.5 C148.5 24.5 150 24.5 151 23.8" stroke="#083d24" stroke-width="0.9" fill="none"/><g transform="translate(108 56)"><g><animateTransform attributeName="transform" type="rotate" values="-42;-12;32;8;-42" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.220s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-5.5 -6 C-5.5 -9 5.5 -9 5.5 -6 L3.6 23 C3.4 25 -3.2 25 -3.4 23 Z" fill="#ffffff"/><g transform="translate(0 23)"><g><animateTransform attributeName="transform" type="rotate" values="0;0;18;105;0" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.220s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.8 -1 L2.8 -1 L2.2 21 L-2.2 21 Z M-3.4 20 L3.8 20 L4.9 25 L-3.2 25 Z" fill="#ffffff"/></g></g></g></g><g transform="translate(57 52)"><g><animateTransform attributeName="transform" type="rotate" values="-34;-4;38;22;-34" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.000s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-9 -9 C-9 -14 9 -14 9 -7 L3.8 24 C3.5 26 -3.2 26 -3.6 24 Z" fill="#ffffff"/><g transform="translate(0 24)"><g><animateTransform attributeName="transform" type="rotate" values="34;14;-6;-62;34" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.000s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.8 -1 L2.8 -1 L2.2 21 L-2.2 21 Z M-3.4 20 L3.8 20 L4.9 25 L-3.2 25 Z" fill="#ffffff"/></g></g></g></g><g fill="#e8b923" transform="translate(-4 -2)"><path d="M88 31 C87 24 92 19.5 99 18 L111 15.2 C113.2 14.8 114.3 16.6 112.6 18 L101 22.6 C97 24.5 95 27.5 95 31.5 Z"/><path d="M106 17.4 L121 21.8 L120.2 24.2 L104.8 20.3 Z"/><path d="M90.5 29.5 L101.5 37.5 L99.6 39.6 L88.5 32.2 Z"/><path d="M99.4 36.5 L104.5 37.2 L104 39.6 L98.6 39 Z" fill="#0b140f"/><circle cx="112.6" cy="10.4" r="4.6"/><path d="M114 9 L120 10.6 L114.5 12 Z"/></g></g></svg>`;
   const heroShell = (eyebrow, status, track) => `<header class="hero"><div class="eyebrow">${eyebrow}</div><h1>Cup Day Sweep</h1>${TROPHY_SVG}<div class="mode" id="hero-status">${status}</div><div class="track" aria-hidden="true"><span class="rail"></span>${track ? RUNNER_SVG : ''}</div></header>`;
 
   // ---------- racing colours ----------
@@ -390,6 +405,8 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       + `<path d="${BODY}" fill="${S.body}"/>${bp ? `<g clip-path="url(#sb-${uid})">${bp}</g>` : ''}<path d="${BODY}" ${ol}/>`
       + `<path d="${PEAK}" fill="${S.cap}"/><path d="${PEAK}" ${ol}/><path d="${CAP}" fill="${S.cap}"/>${cp ? `<g clip-path="url(#sc-${uid})">${cp}</g>` : ''}<path d="${CAP}" ${ol}/></svg>`;
   }
+  // Win price big, place price underneath.
+  const oddsHtml = (hz, fallbackWin) => { const w = fmtOdds(hz.odds || fallbackWin), p = fmtOdds(hz.pl); if (!w && !p) return ''; return `<span class="oddsbox">${w?`<span class="odds num" title="Win">${esc(w)}</span>`:''}${p?`<span class="plodds num" title="Place">Pl ${esc(p)}</span>`:''}</span>`; };
   const fmtOdds = o => { const v = String(o||'').trim().replace(/^\$/,''); if (!v) return ''; if (/^\d+(\.\d+)?$/.test(v)) return '$' + (v.includes('.') ? (+v).toFixed(2) : v); return v; };
 
   // ---------- defaults ----------
@@ -406,7 +423,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
   let pickFor = '';
   let sel = +(LS.get('cupsweep.sel.'+SWEEP_ID) || 0);
   let confirmKey = null, newPlayer = '', pasteText = '', pinText = '', pendingRender = false;
-  let importText = '', importPreview = null;
+  let importText = '', importPreview = null, oddsPaste = '';
 
   function normalize(v){
     v = v || {};
@@ -418,12 +435,12 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       price: +r.price || 0,
       split: PK.map((k,i) => r.split && r.split[k] != null ? +r.split[k] : [60,30,10][i]),
       closed: !!r.closed, override: !!r.override, announced: +r.announced || 0,
-      field: ent(r.field).map(([n,h]) => ({ n:+n, name:h.name||'', j:h.j||'', odds:h.odds||'', c:h.c||'', scr:!!h.scr })).sort((a,b) => a.n-b.n),
+      field: ent(r.field).map(([n,h]) => ({ n:+n, name:h.name||'', j:h.j||'', odds:h.odds||'', pl:h.pl||'', c:h.c||'', scr:!!h.scr })).sort((a,b) => a.n-b.n),
       res: PK.map(k => r.res && r.res[k] ? +r.res[k] : null),
       picks: Object.fromEntries(ent(picksAll[id]).filter(([,pk]) => pk.pid))
     })).sort((a,b) => a.id-b.id);
     const players = ent(v.players).map(([id,p]) => ({ id, name: p.name || '' })).sort((a,b) => a.name.localeCompare(b.name));
-    return { meta: v.meta || {}, races, players, paid: v.paid || {} };
+    return { meta: v.meta || {}, races, players, settled: v.settled || {} };
   }
   // Race times are typed like "3:00pm" and are all on Cup Day, Tuesday 3 Nov 2026, AEDT (UTC+11).
   const RACE_DAY = [2026, 10, 3], RACE_TZ = 11;
@@ -468,7 +485,15 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     });
     return { won, spent, info };
   }
-  const paidAmt = (pid, sp) => Math.min(sp, +S.paid[pid] || 0);
+  // ---------- settling up (net, at the end of the day) ----------
+  const DEFAULT_PAYID = '0400039293';
+  const cents = n => Math.round(n * 100) / 100;
+  const netOf = (C, pid) => cents((C.won[pid]||0) - (C.spent[pid]||0));
+  const payid = () => String(S.meta.payid || DEFAULT_PAYID);
+  const payidPretty = () => { const d = payid().replace(/\s+/g,''); return /^04\d{8}$/.test(d) ? d.replace(/^(\d{4})(\d{3})(\d{3})$/,'$1 $2 $3') : payid(); };
+  const orgName = () => (player(S.meta.orgPid) || {}).name || 'the organiser';
+  // A tick only counts while the amount it was ticked at still matches.
+  const settledOk = (C, pid) => { const t = S.settled[pid]; return t != null && Math.abs(+t - Math.abs(netOf(C, pid))) < 0.005; };
 
   // ---------- fun stuff, all derived from saved picks and results ----------
   function oddsNum(o){
@@ -586,6 +611,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     h += renderTicker(me);
     const allRun = S.races.filter(x => x.on && Object.keys(x.picks).length).every(x => x.res[0]) && resulted().length > 0;
     if (S.meta.wrapped || allRun) h += renderWrapped(C, me, B);
+    if (S.meta.settle && me) h += renderSettleMe(C, me);
     if (isOrg) h += renderPlayersPanel();
     h += renderMe(C, me, B);
 
@@ -599,14 +625,15 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       const ranked = S.players.map(p => ({ p, won: C.won[p.id]||0, sp: C.spent[p.id]||0 })).sort((a,b) => b.won-a.won || a.sp-b.sp || a.p.name.localeCompare(b.p.name));
       h += `<section class="panel"><div class="head"><h2>Standings</h2><span class="muted small">Won, then up or down</span></div><div class="list">` + ranked.map((x,i) => { const net = x.won - x.sp; return `<div class="li"><span class="amt muted num" style="font-size:15px;min-width:20px">${i+1}</span><span class="main"><b>${esc(x.p.name)}${x.p.id===me?' <span class="muted small">(you)</span>':''} ${badgeHtml(B[x.p.id])}</b><span class="owner num">Spent ${money(x.sp)}</span></span><span style="text-align:right"><span class="amt num">${money(x.won)}</span><br><span class="small num ${net>0?'pos-net':net<0?'neg-net':'muted'}">${net>=0?'+':'−'}${money(Math.abs(net))}</span></span></div>`; }).join('') + `</div></section>`;
     }
-    if (isOrg && S.players.length) h += renderPaid(C);
+    if (isOrg && S.players.length) h += renderSettleOrg(C);
 
     h += `<section class="panel"><h2>How it works</h2><ul class="rules">
       <li>Choose your name at the top, open a race and tap <b>Pick a random horse</b>. Each tap buys one horse at that race’s price. Tap again for another.</li>
       <li>The pot is every horse bought. It pays 1st, 2nd and 3rd at the split shown on each race.</li>
       <li>If a horse nobody bought places, its share jackpots into the next race. In the last race it’s shared by everyone in it.</li>
       <li>If your horse is scratched, you get its money back. You can pick again.</li>
-      <li>Picks close at race time, or as soon as the last horse is taken. Settle up with the organiser.</li>
+      <li>Picks close at race time, or as soon as the last horse is taken.</li>
+      <li>Nobody pays during the day. After the last race, Settle up shows whether you owe or are owed. If you owe, pay ${esc(orgName())} by PayID. If you’re owed, they’ll send it to you.</li>
       <li>Tap <b>Turn on race alerts</b> and keep this page open. You’ll get a chime and a banner 5 minutes before each race, and the result pops up when the organiser announces it.</li>
       <li>Add this page to your home screen so it’s one tap away.</li>
     </ul></section>`;
@@ -616,9 +643,13 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     if (pop) h += renderResultPopup(pop, C, me);
 
     const a = document.activeElement, af = a && a.id, ss = a && 'selectionStart' in a ? [a.selectionStart, a.selectionEnd] : null;
+    const openIds = [...root.querySelectorAll('details[id][open]')].map(d => d.id), shutIds = [...root.querySelectorAll('details[id]:not([open])')].map(d => d.id);
     if (!root.querySelector('.wrap.app')) root.innerHTML = `<div class="wrap app">${heroShell('Flemington · Tuesday 3 November', '', true)}<div id="app-body" style="display:contents"></div></div>`;
+    if (!heroReady){ heroReady = true; if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) document.querySelectorAll('svg.runner').forEach(x => { try { x.pauseAnimations(); } catch(_) {} }); }
     document.getElementById('hero-status').innerHTML = status;
     document.getElementById('app-body').innerHTML = h;
+    openIds.forEach(id => { const d = document.getElementById(id); if (d) d.open = true; });
+    shutIds.forEach(id => { const d = document.getElementById(id); if (d) d.open = false; });
     if (af){ const el = document.getElementById(af); if (el){ el.focus(); if (ss && el.setSelectionRange) try { el.setSelectionRange(ss[0], ss[1]); } catch(_) {} } }
     if (pop){
       const k = pop.id + ':' + pop.announced, got = ((C.info[pop.id] || {lines:[]}).lines).filter(l => l.pk && l.pk.pid === me);
@@ -626,7 +657,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     }
   }
 
-  let confettiKey = null;
+  let confettiKey = null, heroReady = false;
   function confetti(count){
     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const cv = document.createElement('canvas'), dpr = window.devicePixelRatio || 1;
@@ -747,7 +778,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
   }
 
   function renderImport(){
-    let h = `<details class="panel" ${importPreview ? 'open' : ''}><summary>Import fields from Racing Australia</summary><div class="tools-body">
+    let h = `<details class="panel" id="ra-import" ${importPreview ? 'open' : ''}><summary>Import fields from Racing Australia</summary><div class="tools-body">
       <p class="small muted">Open the Cup Day fields page on Racing Australia, press Ctrl+A then Ctrl+C, and paste the whole page here. It loads every race’s horses, jockeys and colours. Odds aren’t on that page, so add them in each race afterwards.</p>
       <textarea id="ra-text" rows="5" placeholder="Paste the whole Racing Australia page here">${esc(importText)}</textarea>
       <div class="row"><button data-act="ra-read">Read pasted page</button>${importPreview ? `<button class="ghost" data-act="ra-clear">Clear</button>` : ''}</div>`;
@@ -769,7 +800,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     const hz = horse(r,n) || {n:+n}, pl = r.res.indexOf(+n), ln = C.info[r.id] ? C.info[r.id].lines.find(l => l.n === +n) : null;
     const state = hz.scr ? 'Scratched, refunded' : pl >= 0 ? `<span class="place p${pl+1}">${PL[pl]}</span>` : r.res[0] ? 'Unplaced' : (r.time ? 'Runs '+esc(r.time) : 'Yet to run');
     const od = fmtOdds(hz.odds || pk.odds);
-    return `<button class="li" data-act="sel" data-id="${r.id}"><span class="ids"><span class="cloth ${r.cup?'c':''} num">${n}</span>${silk(hz.c, uid)}</span><span class="main"><b>${esc(hz.name || 'No. '+n)}</b><span class="owner">${esc(r.name)} · ${state}</span>${hz.j?`<span class="jock">${esc(hz.j)}</span>`:''}</span><span style="text-align:right">${ln?`<span class="amt num pos-net">+${money(ln.amt)}</span><br>`:''}${od?`<span class="odds num">${esc(od)}</span>`:''}</span></button>`;
+    return `<button class="li" data-act="sel" data-id="${r.id}"><span class="ids"><span class="cloth ${r.cup?'c':''} num">${n}</span>${silk(hz.c, uid)}</span><span class="main"><b>${esc(hz.name || 'No. '+n)}</b><span class="owner">${esc(r.name)} · ${state}</span>${hz.j?`<span class="jock">${esc(hz.j)}</span>`:''}</span><span style="text-align:right">${ln?`<span class="amt num pos-net">+${money(ln.amt)}</span><br>`:''}${oddsHtml(hz, pk.odds)}</span></button>`;
   }
 
   function renderTicker(me){
@@ -801,9 +832,9 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     if (S.players.length) h += `<label class="whoami ${me?'':'need'}">Who are you?<select id="me-pick"><option value="">Choose your name</option>${S.players.map(p => `<option value="${esc(p.id)}" ${p.id===me?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label>`;
     h += `</div>`;
     if (!me) return h + `<p class="muted small">${S.players.length ? 'Choose your name to pick horses and see what you’ve spent, owe and won.' : 'The organiser hasn’t added players yet.'}</p></section>`;
-    const won = C.won[me]||0, sp = C.spent[me]||0, pd = paidAmt(me, sp), due = Math.max(0, sp-pd), net = won - sp;
-    h += `<div class="totals"><div class="tot"><span>Spent</span><b class="num">${money(sp)}</b></div><div class="tot"><span>Still owe</span><b class="num ${due>0?'neg-net':''}">${money(due)}</b></div><div class="tot"><span>Won</span><b class="num ${won>0?'pos-net':''}">${money(won)}</b></div></div>`;
-    if (sp > 0 || won > 0) h += `<p class="sub num">${due>0?`${pd>0?`Paid ${money(pd)} so far. `:''}Settle ${money(due)} with the organiser. `:sp>0?'All paid up. ':''}Overall you’re ${net>=0?'up':'down'} ${money(Math.abs(net))}.</p>`;
+    const won = C.won[me]||0, sp = C.spent[me]||0, net = netOf(C, me);
+    h += `<div class="totals"><div class="tot"><span>Spent</span><b class="num">${money(sp)}</b></div><div class="tot"><span>Won</span><b class="num ${won>0?'pos-net':''}">${money(won)}</b></div><div class="tot"><span>${net>=0?'Up':'Down'}</span><b class="num ${net>0?'pos-net':net<0?'neg-net':''}">${money(Math.abs(net))}</b></div></div>`;
+    if ((sp > 0 || won > 0) && !S.meta.settle) h += `<p class="sub">Nothing to pay yet. Everyone settles up at the end of the day.</p>`;
     const rows = [];
     S.races.filter(r => r.on).forEach(r => Object.entries(r.picks).filter(([n,pk]) => pk.pid === me).sort((a,b) => a[0]-b[0]).forEach(([n,pk]) => rows.push(myHorseRow(r, n, pk, C, 'me-'+r.id+'-'+n))));
     h += rows.length ? `<div class="list">${rows.join('')}</div>` : `<p class="muted small">No horses yet. Open a race below and tap Pick a random horse.</p>`;
@@ -828,7 +859,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       h += `<div style="display:grid;gap:8px"><div class="head"><h3>${esc(who)}’s horses in this race</h3><span class="small muted num">${held.length} · ${money(held.filter(([n]) => !(horse(r,n)||{}).scr).length * r.price)}</span></div><div class="mygrid">` +
         held.map(([n,pk]) => {
           const hz = horse(r,n) || {n:+n}, fresh = reveal && reveal.race === r.id && reveal.n === +n, pl = r.res.indexOf(+n), od = fmtOdds(hz.odds || pk.odds);
-          return `<div class="mycard ${fresh?'fresh':''} ${hz.scr?'scr':''}"><div class="big-ids"><span class="cloth ${r.cup?'c':''} num">${n}</span>${silk(hz.c,'my-'+r.id+'-'+n)}</div><div style="display:grid;gap:2px;min-width:0">${fresh?`<span class="eyebrow">Just picked${drawTag(r,n) ? ` · <span class="tag ${drawTag(r,n)}">${TAGTXT[drawTag(r,n)]}</span>` : ''}</span>`:''}<b class="hname">${esc(hz.name || 'No. '+n)}</b>${hz.j?`<span class="jock">${esc(hz.j)}</span>`:''}<span>${hz.scr?'<span class="small neg-net">Scratched, refunded</span>':''}${pl>=0?`<span class="place p${pl+1}">${PL[pl]}</span> `:''}${od?`<span class="odds num">${esc(od)}</span>`:''}</span></div></div>`;
+          return `<div class="mycard ${fresh?'fresh':''} ${hz.scr?'scr':''}"><div class="big-ids"><span class="cloth ${r.cup?'c':''} num">${n}</span>${silk(hz.c,'my-'+r.id+'-'+n)}</div><div style="display:grid;gap:2px;min-width:0">${fresh?`<span class="eyebrow">Just picked${drawTag(r,n) ? ` · <span class="tag ${drawTag(r,n)}">${TAGTXT[drawTag(r,n)]}</span>` : ''}</span>`:''}<b class="hname">${esc(hz.name || 'No. '+n)}</b>${hz.j?`<span class="jock">${esc(hz.j)}</span>`:''}<span>${hz.scr?'<span class="small neg-net">Scratched, refunded</span>':''}${pl>=0?`<span class="place p${pl+1}">${PL[pl]}</span> `:''}${oddsHtml(hz, pk.odds)}</span></div></div>`;
         }).join('') + `</div></div>`;
     }
     if (!open && r.on && !r.res[0] && byTime(r) && !r.closed) h += `<div class="note">Picks closed automatically at the race time (${esc(r.time)}).</div>`;
@@ -862,7 +893,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
           <span class="main"><b class="hname">${esc(hz.name || 'No. '+hz.n)}</b>
           <span class="owner ${!pk&&!hz.scr&&open?'free':''}">${hz.scr ? (pk ? `Scratched · ${esc(pname(pk))} refunded` : 'Scratched') : pk ? `<b>${esc(pname(pk))}</b>${mine?' (you)':''}` : open ? 'Available' : 'Unowned'}</span>
           ${hz.j||hz.c?`<span class="jock">${hz.j?esc(hz.j):''}${hz.j&&hz.c?' · ':''}${esc(hz.c||'')}</span>`:''}</span>
-          <span class="side">${pl>=0?`<span class="place p${pl+1}">${PL[pl]}</span>`:''}${od?`<span class="odds num">${esc(od)}</span>`:''}${isOrg?`<button class="tog" data-act="scr" data-n="${hz.n}">${hz.scr?'Unscratch':'Scratch'}</button>`:''}</span></div>`;
+          <span class="side">${pl>=0?`<span class="place p${pl+1}">${PL[pl]}</span>`:''}${oddsHtml(hz)}${isOrg?`<button class="tog" data-act="scr" data-n="${hz.n}">${hz.scr?'Unscratch':'Scratch'}</button>`:''}</span></div>`;
       }).join('') + `</div>`;
     }
 
@@ -879,7 +910,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
   function renderTools(r){
     const okSplit = r.split.reduce((a,b) => a+(+b||0), 0) === 100;
     const npicks = Object.keys(r.picks).length;
-    let h = `<details class="tools" ${(!r.field.length && r.on) ? 'open' : ''}><summary>Organiser: run this race</summary><div class="tools-body">
+    let h = renderOddsEditor(r) + `<details class="tools" id="tools-${r.id}" ${(!r.field.length && r.on) ? 'open' : ''}><summary>Organiser: run this race</summary><div class="tools-body">
       <div class="row">
         <label class="f">Sweep on this race<select id="t-on" data-f="on"><option value="1" ${r.on?'selected':''}>Yes</option><option value="0" ${r.on?'':'selected'}>No</option></select></label>
         <label class="f">$ per horse<input id="t-price" data-f="price" type="number" inputmode="decimal" min="0" step="0.5" value="${r.price}"></label>
@@ -897,11 +928,10 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     }
     h += `<div style="display:grid;gap:8px"><h3>Field</h3>`;
     if (r.field.length){
-      h += `<div class="ftable"><table><thead><tr><th>No.</th><th>Horse</th><th>Jockey</th><th>Odds</th><th>Colours</th></tr></thead><tbody>` +
+      h += `<div class="ftable"><table><thead><tr><th>No.</th><th>Horse</th><th>Jockey</th><th>Colours</th></tr></thead><tbody>` +
         r.field.map(x => `<tr><td class="n">${x.n}</td>
           <td><input id="fn-${r.id}-${x.n}" data-fe="name" data-n="${x.n}" value="${esc(x.name)}"></td>
           <td><input id="fj-${r.id}-${x.n}" data-fe="j" data-n="${x.n}" value="${esc(x.j)}"></td>
-          <td style="width:80px"><input id="fo-${r.id}-${x.n}" data-fe="odds" data-n="${x.n}" value="${esc(x.odds)}" inputmode="decimal"></td>
           <td><input id="fc-${r.id}-${x.n}" data-fe="c" data-n="${x.n}" value="${esc(x.c)}" placeholder="e.g. Navy, white sash"></td></tr>`).join('') + `</tbody></table></div>`;
     }
     h += `<label class="f">Paste a field: one horse per line, as number, horse, jockey, odds, colours<textarea id="paste" rows="5" placeholder="1, Horse Name, J. Smith, 8.50, Royal blue, white sash&#10;2, Another Horse, M. Jones, 15, Red, black hoops">${esc(pasteText)}</textarea></label>
@@ -911,12 +941,81 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     return h + `</div></div></details>`;
   }
 
-  function renderPaid(C){
-    const sp = id => C.spent[id]||0, pd = id => paidAmt(id, sp(id));
-    let h = `<section class="panel"><div class="head"><h2>Who’s paid</h2><span class="muted small num">${money(S.players.reduce((s,p)=>s+pd(p.id),0))} of ${money(S.players.reduce((s,p)=>s+sp(p.id),0))} collected</span></div><div class="list">`;
-    h += S.players.map(p => { const due = sp(p.id)-pd(p.id), full = sp(p.id)>0 && due<=0;
-      return `<div class="li"><span></span><span class="main"><b>${esc(p.name)}</b><span class="owner num">Spent ${money(sp(p.id))}${due>0?` · <span class="neg-net">owes ${money(due)}</span>`:''}</span></span><button class="tog ${full?'primary':''}" data-act="paid" data-id="${esc(p.id)}" ${sp(p.id)>0?'':'disabled'}>${full?'Paid ✓':`Got ${money(due)}`}</button></div>`; }).join('');
-    return h + `</div><p class="muted small">Tap “Got $…” when someone pays you. Horses they buy later show as owing again.</p></section>`;
+  function renderOddsEditor(r){
+    if (!r.on || !r.field.length) return '';
+    const live = r.field.filter(x => !x.scr), done = live.filter(x => x.odds && x.pl).length;
+    const at = r.oddsAt ? new Date(r.oddsAt).toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit',timeZone:'Australia/Melbourne'}) : '';
+    let h = `<details class="tools" id="odds-${r.id}"><summary>Organiser: enter odds <span class="sumnote num">${done} of ${live.length} done${at ? ' · updated ' + esc(at) : ''}</span></summary><div class="tools-body">
+      <p class="small">Type each horse’s Win and Place price. Press <b>Next</b> or <b>Enter</b> to jump to the next box. Each price saves as you go.</p>
+      <div class="oddsgrid"><span class="oh">No.</span><span class="oh">Horse</span><span class="oh">Win $</span><span class="oh">Place $</span>`;
+    h += live.map(x => `<span class="cloth ${r.cup?'c':''} num">${x.n}</span><span class="oname">${esc(x.name || 'No. ' + x.n)}</span>
+      <input id="ow-${r.id}-${x.n}" data-odd="odds" data-n="${x.n}" value="${esc(x.odds)}" inputmode="decimal" enterkeyhint="next" autocomplete="off" aria-label="No. ${x.n} win price" placeholder="—">
+      <input id="op-${r.id}-${x.n}" data-odd="pl" data-n="${x.n}" value="${esc(x.pl)}" inputmode="decimal" enterkeyhint="next" autocomplete="off" aria-label="No. ${x.n} place price" placeholder="—">`).join('');
+    h += `</div>
+      <label class="f">Or paste the whole race: one line per horse, as number then win then place<textarea id="odds-paste" rows="4" placeholder="1 3.50 1.40&#10;2 6.00 1.90&#10;3 12 3.20">${esc(oddsPaste)}</textarea></label>
+      <div class="row"><button data-act="odds-paste">Load pasted odds</button><button class="ghost" data-act="odds-clear">Clear all odds in this race</button></div>
+    </div></details>`;
+    return h;
+  }
+
+  // "1 3.50 1.40", "1, Royal Press, $3.50, $1.40" or "1	Royal Press	3.5	1.4": the last two prices on the line are win then place.
+  function parseOdds(text, r){
+    const out = [];
+    String(text||'').split(/\r?\n/).forEach(line => {
+      const m = line.match(/^\s*(\d{1,2})\b(.*)$/); if (!m) return;
+      const n = +m[1]; if (!horse(r, n)) return;
+      const nums = (m[2].match(/\$?\d+(?:\.\d+)?/g) || []).map(v => v.replace('$','')).filter(v => +v >= 1.01 && +v < 1000);
+      if (!nums.length) return;
+      const [w, p] = nums.length >= 2 ? nums.slice(-2) : [nums[0], ''];
+      out.push({ n, w, p });
+    });
+    return out;
+  }
+
+  function renderSettleMe(C, me){
+    const net = netOf(C, me), done = settledOk(C, me), isHost = me === S.meta.orgPid;
+    let h = `<section class="panel settle"><span class="eyebrow">Settle up</span>`;
+    if (isHost){
+      return h + `<h2>You’re holding the money</h2><p>Your own result: ${net>=0?'up':'down'} <b class="num">${money(Math.abs(net))}</b>. The organiser list below shows who pays you and who you pay.</p></section>`;
+    }
+    if (net < 0){
+      h += `<h2 class="settle-amt">You owe <span class="num neg-net">${money(-net)}</span></h2>`;
+      if (done) return h + `<p class="settle-done">✓ ${esc(orgName())} has received it. Thanks!</p></section>`;
+      h += `<p>Pay ${esc(orgName())} by PayID from your banking app:</p>
+        <div class="payid"><span class="num" id="payid-text">${esc(payidPretty())}</span><button class="primary" data-act="copy-payid">Copy</button></div>
+        <p class="small">Description: <b>Cup sweep ${esc((player(me)||{}).name||'')}</b></p>`;
+    } else if (net > 0){
+      h += `<h2 class="settle-amt">You’re owed <span class="num pos-net">${money(net)}</span></h2>`;
+      h += done ? `<p class="settle-done">✓ ${esc(orgName())} has sent it to you.</p>` : `<p>${esc(orgName())} will send it to you. Make sure they have your PayID or bank details.</p>`;
+    } else {
+      h += `<h2 class="settle-amt">You’re square</h2><p>You broke even, so there’s nothing to pay or receive.</p>`;
+    }
+    return h + `</section>`;
+  }
+
+  function renderSettleOrg(C){
+    const people = S.players.filter(p => p.id !== S.meta.orgPid).map(p => ({ p, net: netOf(C, p.id), ok: settledOk(C, p.id), stale: S.settled[p.id] != null && !settledOk(C, p.id) }));
+    const pay = people.filter(x => x.net < 0).sort((a,b) => a.net - b.net), get = people.filter(x => x.net > 0).sort((a,b) => b.net - a.net), even = people.filter(x => x.net === 0);
+    const inT = cents(pay.reduce((s,x) => s - x.net, 0)), outT = cents(get.reduce((s,x) => s + x.net, 0));
+    const inDone = cents(pay.filter(x => x.ok).reduce((s,x) => s - x.net, 0)), outDone = cents(get.filter(x => x.ok).reduce((s,x) => s + x.net, 0));
+    const host = player(S.meta.orgPid), hostNet = host ? netOf(C, host.id) : 0;
+    const leftover = cents(-S.players.reduce((s,p) => s + netOf(C, p.id), 0));
+    const row = (x, verb) => `<div class="li"><span></span><span class="main"><b>${esc(x.p.name)}</b>${x.stale ? '<span class="warn">Amount changed since you ticked it</span>' : ''}</span><span class="side"><span class="amt num">${money(Math.abs(x.net))}</span><button class="tog ${x.ok?'primary':''}" data-act="settle" data-id="${esc(x.p.id)}" aria-pressed="${x.ok}">${x.ok ? '✓ Done' : verb}</button></span></div>`;
+    let h = `<section class="panel"><div class="head"><h2>Settle up</h2></div>`;
+    h += `<div class="row"><button class="${S.meta.settle?'':'primary'}" data-act="settle-open">${S.meta.settle ? 'Hide settle up from players' : 'Show settle up to everyone'}</button><span class="small muted">${S.meta.settle ? 'Players can see what they owe or are owed.' : 'Turn this on after the last race. Each phone then shows what to pay or receive.'}</span></div>`;
+    h += `<div class="row"><label class="f">Your PayID<input id="payid" data-f2="payid" value="${esc(payid())}" inputmode="tel"></label><label class="f">You are<select id="org-pid" data-f2="orgPid"><option value="">Choose your name</option>${S.players.map(p => `<option value="${esc(p.id)}" ${p.id===S.meta.orgPid?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label></div>`;
+    h += `<div class="settle-sum"><div class="tot"><span>To collect</span><b class="num">${money(inT)}</b><span class="small">${money(inDone)} received</span></div><div class="tot"><span>To pay out</span><b class="num">${money(outT)}</b><span class="small">${money(outDone)} sent</span></div></div>`;
+    h += `<h3>Pay you</h3>` + (pay.length ? `<div class="list">${pay.map(x => row(x, 'Got it')).join('')}</div>` : `<p class="muted small">Nobody owes you.</p>`);
+    h += `<h3>You pay</h3>` + (get.length ? `<div class="list">${get.map(x => row(x, 'Sent')).join('')}</div>` : `<p class="muted small">Nobody is owed money.</p>`);
+    if (even.length) h += `<p class="small muted">Square: ${even.map(x => esc(x.p.name)).join(', ')}</p>`;
+    // Money in races with no result yet is still in play, not lost.
+    const inPlay = cents(S.races.filter(r => r.on && !r.res[0]).reduce((s,r) => { const i = C.info[r.id]; return s + (i && (i.counted || i.jin) ? i.pot : 0); }, 0));
+    const lost = cents(leftover - inPlay);
+    if (inPlay > 0.005) h += `<p class="note">${money(inPlay)} is still riding on races that haven’t run, so these amounts will change. Show settle up after the last result.</p>`;
+    if (host) h += `<p class="small">Your own result: ${hostNet>=0?'up':'down'} <b class="num">${money(Math.abs(hostNet))}</b>. You don’t pay yourself, so once everyone’s collected and paid, you’ll finish ${hostNet>=0?'up':'down'} by that amount.</p>`;
+    else h += `<p class="warn">Choose your name under “You are” so you’re left off the lists.</p>`;
+    if (lost > 0.005) h += `<p class="note">${money(lost)} wasn’t won by anyone. A jackpot had no later race to move to. Share it however the group likes.</p>`;
+    return h + `</section>`;
   }
 
   function renderOrgLogin(){
@@ -974,6 +1073,12 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     if (act === 'pick'){ const who = isOrg ? pickFor : meId; if (who && r) pickHorse(r, who); return; }
     if (act === 'cancel'){ confirmKey = null; render(); return; }
     if (act === 'alerts'){ enableAlerts(); return; }
+    if (act === 'copy-payid'){
+      const txt = payid().replace(/\s+/g,'');
+      const fallback = () => { const el = document.getElementById('payid-text'); if (el){ const rg = document.createRange(); rg.selectNodeContents(el); const sl = getSelection(); sl.removeAllRanges(); sl.addRange(rg); } say('Press and hold the number to copy it.'); };
+      try { navigator.clipboard.writeText(txt).then(() => say('PayID copied. Paste it in your banking app.'), fallback); } catch(_) { fallback(); }
+      return;
+    }
     if (act === 'banner-x'){ banner = ''; render(); return; }
     if (act === 'pop-x'){
       LS.set(seenKey(b.dataset.id), b.dataset.at);
@@ -1036,9 +1141,21 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       const obj = {}; for (let i=1;i<=n;i++){ const o = horse(r,i); obj[i] = o ? { name:o.name, j:o.j, odds:o.odds, c:o.c, scr:o.scr } : { name:'', j:'', odds:'', c:'', scr:false }; }
       save({ [`races/${r.id}/field`]: obj }, `${r.name} has ${n} runners`);
     }
+    else if (act === 'odds-paste'){
+      const got = parseOdds(oddsPaste, r);
+      if (!got.length){ say('No lines started with a horse number followed by a price.'); return; }
+      const u = { [`races/${r.id}/oddsAt`]: TS };
+      got.forEach(x => { u[`races/${r.id}/field/${x.n}/odds`] = x.w; if (x.p) u[`races/${r.id}/field/${x.n}/pl`] = x.p; });
+      oddsPaste = ''; save(u, `Odds loaded for ${got.length} horse${got.length===1?'':'s'}`);
+    }
+    else if (act === 'odds-clear'){
+      const u = {}; r.field.forEach(x => { u[`races/${r.id}/field/${x.n}/odds`] = ''; u[`races/${r.id}/field/${x.n}/pl`] = ''; });
+      save(u, `Odds cleared for ${r.name}`);
+    }
     else if (act === 'askclear'){ confirmKey = 'clear'; render(); }
     else if (act === 'clearpicks'){ confirmKey = null; save({ ['picks/'+r.id]: null, [`races/${r.id}/res`]: null }, `Picks cleared for ${r.name}`); }
-    else if (act === 'paid'){ const id = b.dataset.id, sp = compute().spent[id] || 0; save({ ['paid/'+id]: (sp > 0 && paidAmt(id, sp) >= sp) ? null : Math.round(sp*100)/100 }, 'Payments updated'); }
+    else if (act === 'settle'){ const id = b.dataset.id, C = compute(), on = settledOk(C, id); save({ ['settled/'+id]: on ? null : Math.abs(netOf(C, id)) }, on ? 'Unticked' : 'Ticked off'); }
+    else if (act === 'settle-open'){ const u = { 'meta/settle': S.meta.settle ? null : TS }; if (!S.meta.orgPid && player(meId)) u['meta/orgPid'] = meId; save(u, S.meta.settle ? 'Settle up hidden' : 'Settle up is showing on every phone'); }
   });
 
   root.addEventListener('input', e => {
@@ -1047,6 +1164,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     else if (id === 'paste') pasteText = e.target.value;
     else if (id === 'pin') pinText = e.target.value;
     else if (id === 'ra-text') importText = e.target.value;
+    else if (id === 'odds-paste') oddsPaste = e.target.value;
   });
 
   root.addEventListener('submit', async e => {
@@ -1078,6 +1196,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     const r = race(sel);
     if (t.id === 'me-pick'){ meId = t.value; LS.set('cupsweep.me.'+SWEEP_ID, meId || null); reveal = null; render(); return; }
     if (t.id === 'pick-for'){ pickFor = t.value; reveal = null; render(); return; }
+    if (isOrg && t.dataset.f2){ const v = t.dataset.f2 === 'payid' ? String(t.value).replace(/[^\d@.a-z+\- ]/gi,'').trim().slice(0,60) : t.value; save({ ['meta/'+t.dataset.f2]: v || null }, 'Saved'); return; }
     if (!isOrg || !r) return;
     if (t.dataset.f){
       const f = t.dataset.f; let v;
@@ -1091,6 +1210,10 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       const i = +t.dataset.res, v = t.value ? +t.value : null, u = { [`races/${r.id}/res/${PK[i]}`]: v };
       if (v){ PK.forEach((k,j) => { if (j !== i && r.res[j] === v) u[`races/${r.id}/res/${k}`] = null; }); u[`races/${r.id}/closed`] = true; }
       save(u, `${r.name} result updated`);
+    } else if (t.dataset.odd){
+      const v = String(t.value).replace(/[$\s]/g,'').replace(/[^\d./]/g,'').slice(0,8);
+      if (v !== t.value) t.value = v;
+      save({ [`races/${r.id}/field/${t.dataset.n}/${t.dataset.odd}`]: v, [`races/${r.id}/oddsAt`]: TS });
     } else if (t.dataset.fe){
       const f = t.dataset.fe; let v = f === 'c' ? String(t.value).replace(/\s+/g,' ').trim().slice(0,120) : norm(t.value); if (f === 'odds') v = v.replace(/^\$/,'');
       save({ [`races/${r.id}/field/${t.dataset.n}/${f}`]: v }, `No. ${t.dataset.n} updated`);
@@ -1099,6 +1222,13 @@ const BASE = 'cupsweep/' + SWEEP_ID;
 
   // Every 20 seconds: race-time reminders, and redraw so races close on time.
   setInterval(() => { if (!S) return; checkReminders(); if (editing()) pendingRender = true; else render(); }, 20000);
+
+  root.addEventListener('keydown', e => {
+    const t = e.target; if (e.key !== 'Enter' || !t.dataset || !t.dataset.odd) return;
+    e.preventDefault();
+    const all = [...root.querySelectorAll('input[data-odd]')], i = all.indexOf(t);
+    if (all[i+1]){ all[i+1].focus(); all[i+1].select(); } else t.blur();
+  });
 
   root.addEventListener('focusout', () => { setTimeout(() => { if (pendingRender && !editing()) render(); }, 50); });
 
