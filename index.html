@@ -777,6 +777,9 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     h += S.players.length ? `<div class="players">${S.players.map(p => `<span class="pchip">${esc(p.name)}<button data-act="rmp" data-id="${esc(p.id)}" aria-label="Remove ${esc(p.name)}">×</button></span>`).join('')}</div>` : `<div class="empty">Add everyone who’s in today. They’ll choose their name from this list.</div>`;
     if (confirmKey && confirmKey.startsWith('rmp:')){ const p = player(confirmKey.slice(4)); if (p) h += `<div class="confirm"><span>${esc(p.name)} has horses already. Remove anyway? Their horses stay in the pots.</span><button class="danger" data-act="rmp-yes" data-id="${esc(p.id)}">Remove</button><button data-act="cancel">Cancel</button></div>`; }
     h += `<form class="row" data-form="addp"><label class="f">Add a player<input id="new-player" value="${esc(newPlayer)}" placeholder="Name" autocomplete="off" maxlength="40"></label><button type="submit">Add</button></form></section>`;
+    h = h.replace(/<\/section>$/, (confirmKey === 'wipe'
+      ? `<div class="confirm"><span>Clear every pick, result and settle-up tick in all races? Players, fields, odds and prices stay.</span><button class="danger" data-act="wipe">Clear all test data</button><button data-act="cancel">Cancel</button></div>`
+      : `<div class="row"><button class="ghost" data-act="askwipe">Clear all test picks and results</button></div>`) + '</section>');
     h = h.replace(/<\/section>$/, `<div class="row"><button data-act="wrapped">${S.meta.wrapped ? 'Hide Cup Day Wrapped' : 'Show Cup Day Wrapped to everyone'}</button><span class="small muted">It also appears by itself once every race with horses has a result.</span></div></section>`);
     return h + renderImport();
   }
@@ -948,7 +951,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     h += `<label class="f">Paste a field: one horse per line, as number, horse, jockey, odds, colours<textarea id="paste" rows="5" placeholder="1, Horse Name, J. Smith, 8.50, Royal blue, white sash&#10;2, Another Horse, M. Jones, 15, Red, black hoops">${esc(pasteText)}</textarea></label>
       <div class="row"><button data-act="paste">${r.field.length ? 'Replace field with pasted lines' : 'Load pasted field'}</button><label class="f" style="flex:0 1 150px">Or just number them<input id="gen-n" type="number" inputmode="numeric" min="2" max="30" placeholder="e.g. 14"></label><button data-act="gen">Create</button></div>`;
     if (npicks) h += `<p class="warn">${npicks} horse${npicks===1?' has':'s have'} been picked. Replacing the field keeps picks by horse number.</p>` +
-      (confirmKey === 'clear' ? `<div class="confirm"><span>Clear every pick and the result in this race?</span><button class="danger" data-act="clearpicks">Clear picks</button><button data-act="cancel">Cancel</button></div>` : `<div class="row"><button class="ghost" data-act="askclear">Clear all picks in this race</button></div>`);
+      (confirmKey === 'clear' ? `<div class="confirm"><span>Clear every pick and the result in this race and reopen it?</span><button class="danger" data-act="clearpicks">Clear picks</button><button data-act="cancel">Cancel</button></div>` : `<div class="row"><button class="ghost" data-act="askclear">Clear all picks in this race</button></div>`);
     return h + `</div></div></details>`;
   }
 
@@ -1198,8 +1201,14 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       const u = {}; r.field.forEach(x => { u[`races/${r.id}/field/${x.n}/odds`] = ''; u[`races/${r.id}/field/${x.n}/pl`] = ''; });
       save(u, `Odds cleared for ${r.name}`);
     }
+    else if (act === 'askwipe'){ confirmKey = 'wipe'; render(); }
+    else if (act === 'wipe'){
+      const u = { picks: null, settled: null, 'meta/settle': null, 'meta/wrapped': null };
+      S.races.forEach(x => { u[`races/${x.id}/res`] = null; u[`races/${x.id}/announced`] = null; u[`races/${x.id}/closed`] = false; u[`races/${x.id}/override`] = false; });
+      confirmKey = null; reveal = null; save(u, 'All test picks and results cleared');
+    }
     else if (act === 'askclear'){ confirmKey = 'clear'; render(); }
-    else if (act === 'clearpicks'){ confirmKey = null; save({ ['picks/'+r.id]: null, [`races/${r.id}/res`]: null }, `Picks cleared for ${r.name}`); }
+    else if (act === 'clearpicks'){ confirmKey = null; save({ ['picks/'+r.id]: null, [`races/${r.id}/res`]: null, [`races/${r.id}/announced`]: null, [`races/${r.id}/closed`]: false, [`races/${r.id}/override`]: false }, `Picks and result cleared for ${r.name}`); }
     else if (act === 'settle'){ const id = b.dataset.id, C = compute(), on = settledOk(C, id); save({ ['settled/'+id]: on ? null : Math.abs(netOf(C, id)) }, on ? 'Unticked' : 'Ticked off'); }
     else if (act === 'settle-open'){ const u = { 'meta/settle': S.meta.settle ? null : TS }; if (!S.meta.orgPid && player(meId)) u['meta/orgPid'] = meId; save(u, S.meta.settle ? 'Settle up hidden' : 'Settle up is showing on every phone'); }
   });
