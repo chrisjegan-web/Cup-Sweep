@@ -1192,13 +1192,13 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     else if (act === 'paste'){
       const f = parseField(pasteText);
       if (!f.length){ say('No lines started with a horse number.'); return; }
-      const obj = {}; f.forEach(x => { const old = horse(r, x.n); obj[x.n] = { name:x.name, j:x.j, odds:x.odds, c:x.c, scr: !!(old && old.scr) }; });
+      const obj = {}; f.forEach(x => { const old = horse(r, x.n) || {}; obj[x.n] = { name:x.name, j:x.j || old.j || '', odds:x.odds || old.odds || '', pl:old.pl || '', c:x.c || old.c || '', scr: !!old.scr }; });
       pasteText = ''; save({ [`races/${r.id}/field`]: obj }, `Loaded ${f.length} horses into ${r.name}`);
     }
     else if (act === 'gen'){
       const el = document.getElementById('gen-n'), n = Math.min(30, Math.max(2, parseInt(el && el.value, 10) || 0));
       if (!el || !el.value) return;
-      const obj = {}; for (let i=1;i<=n;i++){ const o = horse(r,i); obj[i] = o ? { name:o.name, j:o.j, odds:o.odds, c:o.c, scr:o.scr } : { name:'', j:'', odds:'', c:'', scr:false }; }
+      const obj = {}; for (let i=1;i<=n;i++){ const o = horse(r,i); obj[i] = o ? { name:o.name, j:o.j, odds:o.odds, pl:o.pl, c:o.c, scr:o.scr } : { name:'', j:'', odds:'', pl:'', c:'', scr:false }; }
       save({ [`races/${r.id}/field`]: obj }, `${r.name} has ${n} runners`);
     }
     else if (act === 'odds-paste'){
@@ -1257,8 +1257,11 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     }
   });
 
-  root.addEventListener('change', e => {
-    const t = e.target; if (!S) return;
+  // Save after the cursor has landed in the next box. While focus is moving, the page briefly looks like
+  // nobody is typing; saving then makes the instant refresh redraw the list and lose the cursor.
+  root.addEventListener('change', e => { const t = e.target; setTimeout(() => onChange(t), 0); });
+  function onChange(t){
+    if (!S) return;
     const r = race(sel);
     if (t.id === 'me-pick'){ meId = t.value; LS.set('cupsweep.me.'+SWEEP_ID, meId || null); reveal = null; render(); return; }
     if (t.id === 'pick-for'){ pickFor = t.value; reveal = null; render(); return; }
@@ -1285,7 +1288,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       const f = t.dataset.fe; let v = f === 'c' ? String(t.value).replace(/\s+/g,' ').trim().slice(0,120) : norm(t.value); if (f === 'odds') v = v.replace(/^\$/,'');
       save({ [`races/${r.id}/field/${t.dataset.n}/${f}`]: v }, `No. ${t.dataset.n} updated`);
     }
-  });
+  }
 
   // Every 20 seconds: race-time reminders, and redraw so races close on time.
   setInterval(() => { if (!S) return; checkReminders(); if (editing()) pendingRender = true; else render(); }, 20000);
