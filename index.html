@@ -48,7 +48,7 @@ code{font-size:15px;background:var(--bg);padding:1px 6px;border-radius:4px}
 .hero .track{grid-column:1 / -1;position:relative;height:96px;margin:2px -18px 0}
 .hero .rail{position:absolute;left:0;right:0;bottom:12px;height:4px;background:var(--on-solid)}
 .hero .rail::after{content:"";position:absolute;left:0;right:0;top:10px;height:2px;background:var(--on-solid);opacity:.45}
-.hero .runner{position:absolute;bottom:13px;left:55%;width:132px;height:auto}
+.hero .runner{position:absolute;bottom:13px;left:52%;width:142px;height:auto}
 @media (prefers-reduced-motion:no-preference){
   .hero .runner{left:0;animation:gallop 11s linear infinite}
   @keyframes gallop{0%{transform:translateX(-150px)}60%{transform:translateX(calc(100vw + 20px))}100%{transform:translateX(calc(100vw + 20px))}}
@@ -235,6 +235,7 @@ details>summary{cursor:pointer;font-weight:800;color:var(--turf);padding:8px 0;f
 .oddsgrid input{width:100%;text-align:center;font-family:var(--display);font-weight:850;font-size:21px;padding:8px 4px}
 .oddsgrid input:placeholder-shown{background:var(--gold-soft);border-color:var(--gold)}
 @media (max-width:420px){.oddsgrid{grid-template-columns:auto minmax(0,1fr) 74px 74px;gap:8px 6px}.oddsgrid input{font-size:19px}}
+.scrnew{font-weight:800;color:var(--rose);font-size:16.5px}
 .empty{padding:16px;border:2px dashed var(--line);border-radius:10px;text-align:center;color:var(--muted);font-size:17px;font-weight:600}
 @media (max-width:480px){.results{grid-template-columns:1fr}.pot{text-align:left}.totals{gap:6px}.tot b{font-size:23px}.slots{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.chip,button{transition:border-color .15s,background .15s}}
@@ -282,7 +283,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
 
   // ---------- race-day hero ----------
   const TROPHY_SVG = `<svg class="trophy" viewBox="0 0 80 80" role="img" aria-label="The Melbourne Cup"><g fill="#e8b923"><path d="M14 8 H66 V11 H63 C63 30 56 40 44 44 V50 C44 52 46 53 48 54 H32 C34 53 36 52 36 50 V44 C24 40 17 30 17 11 H14 Z"/><path d="M17 14 C6 14 4 26 12 31 C15 33 19 33 21 31 L19 28 C17 30 14 30 12 28 C8 24 10 18 17 18 Z"/><path d="M63 14 C74 14 76 26 68 31 C65 33 61 33 59 31 L61 28 C63 30 66 30 68 28 C72 24 70 18 63 18 Z"/><path d="M34 4 C34 0 46 0 46 4 C46 6 43 7 40 7 C37 7 34 6 34 4 Z"/><path d="M30 54 H50 L54 62 H26 Z"/></g><rect x="22" y="62" width="36" height="12" rx="1.5" fill="#5a3418"/><rect x="25" y="65" width="30" height="6" fill="#e8b923"/><path d="M22 13 C23 28 29 37 38 40" stroke="#fff6cf" stroke-width="2.4" fill="none" opacity=".75"/></svg>`;
-  const RUNNER_SVG = `<svg class="runner" viewBox="8 -2 150 112" aria-hidden="true"><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -2.2;0 0;0 -1;0 0" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" repeatCount="indefinite"/><g transform="translate(114 57)"><g><animateTransform attributeName="transform" type="rotate" values="-42;-12;32;8;-42" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.300s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-5.5 -6 C-5.5 -9 5.5 -9 5.5 -6 L3.6 23 C3.4 25 -3.2 25 -3.4 23 Z" fill="#cfd8d1"/><g transform="translate(0 23)"><g><animateTransform attributeName="transform" type="rotate" values="0;0;18;105;0" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.300s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.8 -1 L2.8 -1 L2.2 21 L-2.2 21 Z M-3.4 20 L3.8 20 L4.9 25 L-3.2 25 Z" fill="#cfd8d1"/></g></g></g></g><g transform="translate(64 53)"><g><animateTransform attributeName="transform" type="rotate" values="-34;-4;38;22;-34" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.060s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-9 -9 C-9 -14 9 -14 9 -7 L3.8 24 C3.5 26 -3.2 26 -3.6 24 Z" fill="#cfd8d1"/><g transform="translate(0 24)"><g><animateTransform attributeName="transform" type="rotate" values="34;14;-6;-62;34" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.060s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.8 -1 L2.8 -1 L2.2 21 L-2.2 21 Z M-3.4 20 L3.8 20 L4.9 25 L-3.2 25 Z" fill="#cfd8d1"/></g></g></g></g><path d="M48 40 C38 35 25 37 13 47 C21 45 29 45 37 47 C29 51 23 57 19 64 C31 57 40 52 49 49 Z" fill="#ffffff"/><path d="M52 36 C60 31 72 31 84 33 C92 34 98 32 103 27 C110 19 118 11 128 7 L130 1.5 L132.8 6.2 C139 7 146 12 152 19 C155 23 154 27.5 150 27.5 C145 27.5 141 25 137 23 C133 25 127 31 122 40 C119 48 116 55 110 60 C100 65 86 65.5 74 65 C68 65 63 66 58 64 C49 62 43 55 43 47 C43 41 46 37 52 36 Z" fill="#ffffff"/><path d="M103 27 C110 18 118 11 127 7.5 C121 13 114 21 109 29 Z" fill="#dfe6e0"/><circle cx="142.5" cy="15" r="1.6" fill="#083d24"/><path d="M147 23.5 C148.5 24.5 150 24.5 151 23.8" stroke="#083d24" stroke-width="0.9" fill="none"/><g transform="translate(108 56)"><g><animateTransform attributeName="transform" type="rotate" values="-42;-12;32;8;-42" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.220s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-5.5 -6 C-5.5 -9 5.5 -9 5.5 -6 L3.6 23 C3.4 25 -3.2 25 -3.4 23 Z" fill="#ffffff"/><g transform="translate(0 23)"><g><animateTransform attributeName="transform" type="rotate" values="0;0;18;105;0" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.220s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.8 -1 L2.8 -1 L2.2 21 L-2.2 21 Z M-3.4 20 L3.8 20 L4.9 25 L-3.2 25 Z" fill="#ffffff"/></g></g></g></g><g transform="translate(57 52)"><g><animateTransform attributeName="transform" type="rotate" values="-34;-4;38;22;-34" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.000s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-9 -9 C-9 -14 9 -14 9 -7 L3.8 24 C3.5 26 -3.2 26 -3.6 24 Z" fill="#ffffff"/><g transform="translate(0 24)"><g><animateTransform attributeName="transform" type="rotate" values="34;14;-6;-62;34" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.000s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.8 -1 L2.8 -1 L2.2 21 L-2.2 21 Z M-3.4 20 L3.8 20 L4.9 25 L-3.2 25 Z" fill="#ffffff"/></g></g></g></g><g fill="#e8b923" transform="translate(-4 -2)"><path d="M88 31 C87 24 92 19.5 99 18 L111 15.2 C113.2 14.8 114.3 16.6 112.6 18 L101 22.6 C97 24.5 95 27.5 95 31.5 Z"/><path d="M106 17.4 L121 21.8 L120.2 24.2 L104.8 20.3 Z"/><path d="M90.5 29.5 L101.5 37.5 L99.6 39.6 L88.5 32.2 Z"/><path d="M99.4 36.5 L104.5 37.2 L104 39.6 L98.6 39 Z" fill="#0b140f"/><circle cx="112.6" cy="10.4" r="4.6"/><path d="M114 9 L120 10.6 L114.5 12 Z"/></g></g></svg>`;
+  const RUNNER_SVG = `<svg class="runner" viewBox="0 -4 160 116" aria-hidden="true"><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -2.2;0 0;0 -1;0 0" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" repeatCount="indefinite"/><g transform="translate(114 57)"><g><animateTransform attributeName="transform" type="rotate" values="-42;-12;30;6;-42" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.300s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-5.8 -7 C-5.8 -10 5.8 -10 5.8 -7 L3.6 21 C3.4 23.4 -3.2 23.4 -3.4 21 Z" fill="#cfd8d1"/><g transform="translate(0 22)"><g><animateTransform attributeName="transform" type="rotate" values="6;0;14;96;6" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.300s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.9 -1.5 L2.9 -1.5 L2.4 16.5 C2.6 18.4 -2.6 18.4 -2.4 16.5 Z" fill="#cfd8d1"/><g transform="translate(0 17)"><g><animateTransform attributeName="transform" type="rotate" values="-14;24;34;46;-14" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.300s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.4 -1 L2.4 -1 L3 4 L4.8 7.6 L-2.8 7.6 L-2.6 4 Z" fill="#cfd8d1"/></g></g></g></g></g></g><g transform="translate(64 52)"><g><animateTransform attributeName="transform" type="rotate" values="0;24;44;28;0" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.060s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-9.5 -11 C-9.5 -16 9.5 -16 9 -8 L4.2 21 C4 23.6 -1.5 25 -5.4 23 C-6 21.6 -5.2 19.6 -4.4 18 Z" fill="#cfd8d1"/><g transform="translate(0 22)"><g><animateTransform attributeName="transform" type="rotate" values="-36;-32;-4;-76;-36" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.060s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.9 -1.5 L2.9 -1.5 L2.4 16.5 C2.6 18.4 -2.6 18.4 -2.4 16.5 Z" fill="#cfd8d1"/><g transform="translate(0 17)"><g><animateTransform attributeName="transform" type="rotate" values="28;32;16;-24;28" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.060s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.4 -1 L2.4 -1 L3 4 L4.8 7.6 L-2.8 7.6 L-2.6 4 Z" fill="#cfd8d1"/></g></g></g></g></g></g><g><animateTransform attributeName="transform" type="rotate" values="0 49 40;-7 49 40;0 49 40;5 49 40;0 49 40" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" repeatCount="indefinite"/><path d="M49 37 C41 32 31 32 23 37 C16 41 11 48 6 57 C10 54 13 53 16 53.5 C12 57 9 62 8 68 C13 62 18 58 23 56 C21 60 20 63 20 66 C25 60 31 55 37 51 C42 48 46 46 50 44 Z" fill="#ffffff"/><path d="M44 39 C35 37 25 40 16 49" stroke="#d5ddd7" stroke-width="1.2" fill="none"/><path d="M46 43 C38 45 29 50 22 58" stroke="#d5ddd7" stroke-width="1.2" fill="none"/></g><path d="M52 36 C60 31 72 31 84 33 C92 34 98 32 103 27 C110 19 118 11 128 7 L130 1.5 L132.8 6.2 C139 7 146 12 152 19 C155 23 154 27.5 150 27.5 C145 27.5 141 25 137 23 C133 25 127 31 122 40 C119 48 116 55 110 60 C100 65 86 65.5 74 65 C68 65 63 66 58 64 C49 62 43 55 43 47 C43 41 46 37 52 36 Z" fill="#ffffff"/><path d="M103 27 C110 18 118 11 127 7.5 C121 13 114 21 109 29 Z" fill="#dfe6e0"/><circle cx="142.5" cy="15" r="1.6" fill="#083d24"/><path d="M147 23.5 C148.5 24.5 150 24.5 151 23.8" stroke="#083d24" stroke-width="0.9" fill="none"/><g transform="translate(108 56)"><g><animateTransform attributeName="transform" type="rotate" values="-42;-12;30;6;-42" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.220s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-5.8 -7 C-5.8 -10 5.8 -10 5.8 -7 L3.6 21 C3.4 23.4 -3.2 23.4 -3.4 21 Z" fill="#ffffff"/><g transform="translate(0 22)"><g><animateTransform attributeName="transform" type="rotate" values="6;0;14;96;6" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.220s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.9 -1.5 L2.9 -1.5 L2.4 16.5 C2.6 18.4 -2.6 18.4 -2.4 16.5 Z" fill="#ffffff"/><g transform="translate(0 17)"><g><animateTransform attributeName="transform" type="rotate" values="-14;24;34;46;-14" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.220s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.4 -1 L2.4 -1 L3 4 L4.8 7.6 L-2.8 7.6 L-2.6 4 Z" fill="#ffffff"/></g></g></g></g></g></g><g transform="translate(57 51)"><g><animateTransform attributeName="transform" type="rotate" values="0;24;44;28;0" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.000s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-9.5 -11 C-9.5 -16 9.5 -16 9 -8 L4.2 21 C4 23.6 -1.5 25 -5.4 23 C-6 21.6 -5.2 19.6 -4.4 18 Z" fill="#ffffff"/><g transform="translate(0 22)"><g><animateTransform attributeName="transform" type="rotate" values="-36;-32;-4;-76;-36" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.000s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.9 -1.5 L2.9 -1.5 L2.4 16.5 C2.6 18.4 -2.6 18.4 -2.4 16.5 Z" fill="#ffffff"/><g transform="translate(0 17)"><g><animateTransform attributeName="transform" type="rotate" values="28;32;16;-24;28" keyTimes="0;0.25;0.5;0.75;1" dur="0.5s" begin="-0.000s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/><path d="M-2.4 -1 L2.4 -1 L3 4 L4.8 7.6 L-2.8 7.6 L-2.6 4 Z" fill="#ffffff"/></g></g></g></g></g></g><g><path d="M79 31 L97 31.5 L96 42 L80.5 42 Z" fill="#c8102e"/><path d="M83 31.5 C88 29.6 94 29.8 98.5 31.6 L97.5 34.4 C93 33 88 33 84.5 34.6 Z" fill="#1d1a16"/><path d="M101 12.5 L106.5 19.2 L114.5 20.4" stroke="#c99a12" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M83 22.5 C87 20.8 93 22 100.5 27.4 C103 29.4 102.4 32.8 99.2 33 C93.5 31.2 88.6 29.4 84.6 28.4 Z" fill="#f2e6c4"/><path d="M97.4 29.6 L102.6 30.4 L101.8 38.6 L96.4 39.6 C94.6 39.9 93.6 38.6 94.4 37.4 L97 34.6 Z" fill="#1d1a16"/><path d="M92.5 40 L101.5 40" stroke="#9aa39c" stroke-width="1.2"/><path d="M82.5 24.5 C81.5 17.5 88 11.8 98 9.4 C102.5 8.4 106.6 9.4 107.6 12.2 C108.4 14.8 106 16.6 102.6 17.2 C96.4 18.4 91.8 21.4 89.8 26.4 C88 27.6 84 27.4 82.5 24.5 Z" fill="#e8b923"/><path d="M88.6 12.6 L93.6 10.8 L101.6 17.6 L97.4 18.6 Z" fill="#c8102e"/><path d="M103.2 12.4 L108.6 19.6 L116.8 20.2" stroke="#e8b923" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="117.2" cy="20.2" r="1.9" fill="#f4f4f2"/><circle cx="112.2" cy="8.6" r="2.5" fill="#e3a77c"/><path d="M106 7.2 C106 2.2 109.5 0.2 112.6 0.6 C116 1 117.6 3.8 117.2 6.6 L120.8 7.6 L117 8.2 C113.6 8.6 109.6 8.4 106 7.2 Z" fill="#c8102e"/><path d="M108.4 3.2 C111 2 114 2.2 116.6 3.8" stroke="#e8b923" stroke-width="1.1" fill="none"/><path d="M117.6 20.4 C126 22.4 136 23.6 145.6 24.6" stroke="#2b2b2b" stroke-width="0.9" fill="none"/></g></g></svg>`;
   const heroShell = (eyebrow, status, track) => `<header class="hero"><div class="eyebrow">${eyebrow}</div><h1>Cup Day Sweep</h1>${TROPHY_SVG}<div class="mode" id="hero-status">${status}</div><div class="track" aria-hidden="true"><span class="rail"></span>${track ? RUNNER_SVG : ''}</div></header>`;
 
   // ---------- racing colours ----------
@@ -423,7 +424,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
   let pickFor = '';
   let sel = +(LS.get('cupsweep.sel.'+SWEEP_ID) || 0);
   let confirmKey = null, newPlayer = '', pasteText = '', pinText = '', pendingRender = false;
-  let importText = '', importPreview = null, oddsPaste = '';
+  let importText = '', importPreview = null, oddsPaste = '', importScr = new Set(), importHtml = false;
 
   function normalize(v){
     v = v || {};
@@ -431,7 +432,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     const ent = o => Object.entries(o || {}).filter(([,x]) => x != null);
     const picksAll = v.picks || {};
     const races = ent(v.races).map(([id, r]) => ({
-      id: +id, name: r.name || 'Race '+id, time: r.time || '', on: r.on !== false, cup: !!r.cup,
+      id: +id, name: cleanRaceName(r.name) || 'Race '+id, time: headTime(r.name) || r.time || '', on: r.on !== false, cup: !!r.cup,
       price: +r.price || 0,
       split: PK.map((k,i) => r.split && r.split[k] != null ? +r.split[k] : [60,30,10][i]),
       closed: !!r.closed, override: !!r.override, announced: +r.announced || 0,
@@ -442,6 +443,9 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     const players = ent(v.players).map(([id,p]) => ({ id, name: p.name || '' })).sort((a,b) => a.name.localeCompare(b.name));
     return { meta: v.meta || {}, races, players, settled: v.settled || {} };
   }
+  // Racing Australia headings look like "3:00PM Lexus Melbourne Cup (3200 METRES)Times displayed in local time...".
+  const headTime = s => { const m = String(s||'').match(/^\s*(\d{1,2}[:.]\d{2})\s*([ap]m)\b/i); return m ? (m[1].replace('.',':') + m[2]).toLowerCase() : ''; };
+  const cleanRaceName = s => String(s||'').replace(/^\s*\d{1,2}[:.]\d{2}\s*[ap]m\b\s*/i,'').replace(/\s*\(\s*[\d,]+\s*m(etres?)?\s*\).*$/i,'').replace(/\s*Times displayed.*$/i,'').trim();
   // Race times are typed like "3:00pm" and are all on Cup Day, Tuesday 3 Nov 2026, AEDT (UTC+11).
   const RACE_DAY = [2026, 10, 3], RACE_TZ = 11;
   function startTs(r){
@@ -779,18 +783,25 @@ const BASE = 'cupsweep/' + SWEEP_ID;
 
   function renderImport(){
     let h = `<details class="panel" id="ra-import" ${importPreview ? 'open' : ''}><summary>Import fields from Racing Australia</summary><div class="tools-body">
-      <p class="small muted">Open the Cup Day fields page on Racing Australia, press Ctrl+A then Ctrl+C, and paste the whole page here. It loads every race’s horses, jockeys and colours. Odds aren’t on that page, so add them in each race afterwards.</p>
+      <p class="small muted">Open the Cup Day fields page on Racing Australia, press Ctrl+A then Ctrl+C, and paste the whole page here. It loads every race’s horses, jockeys and colours. Paste it again later on the day to pick up scratchings.</p>
       <textarea id="ra-text" rows="5" placeholder="Paste the whole Racing Australia page here">${esc(importText)}</textarea>
       <div class="row"><button data-act="ra-read">Read pasted page</button>${importPreview ? `<button class="ghost" data-act="ra-clear">Clear</button>` : ''}</div>`;
     if (importPreview){
+      if (importPreview.length) h += importHtml ? `<p class="small">✓ Read the page’s formatting too, so struck-through (scratched) horses are picked up.</p>` : `<p class="warn">Only plain text came through, so struck-through scratchings can’t be seen. Copy straight from the Racing Australia page in Chrome, Edge or Safari, then paste with Ctrl+V.</p>`;
       if (!importPreview.length) h += `<p class="warn">I couldn’t find any races in that text. Make sure you copied the whole page, including the “Race 1 - …” headings.</p>`;
       else {
         h += `<div class="list">` + importPreview.map(r => {
-          const ex = race(r.n), picked = ex ? Object.keys(ex.picks).length : 0;
-          const wc = r.field.filter(x => x.c).length, wj = r.field.filter(x => x.j).length;
-          return `<div class="li"><span class="cloth ${r.n===7?'c':''} num">${r.n}</span><span class="main"><b>${esc(r.name)}</b><span class="owner num">${r.field.length} horses · ${wc} with colours · ${wj} with jockeys${picked ? ` · <span class="neg-net">skipped, ${picked} already picked</span>` : ''}</span></span><span></span></div>`;
-        }).join('') + `</div><button class="primary" data-act="ra-load">Load these into the sweep</button>
-        <p class="small muted">Races that already have picks are skipped, so nobody’s horse changes. Clear a race’s picks first if you want to reload it.</p>`;
+          const pl = planImport(r), live = r.field.filter(x => !x.scr).length, wj = r.field.filter(x => x.j).length;
+          let what;
+          if (pl.locked) what = '<span class="muted">Result already in, so left alone</span>';
+          else if (pl.mode === 'blocked') what = `<span class="neg-net">Horse numbers don’t match what’s loaded (No. ${pl.conflict.slice(0,4).join(', ')}), and horses are already picked, so this race is left alone. Scratch any changes by hand.</span>`;
+          else if (pl.mode === 'new') what = `New: ${r.field.length} horses, ${wj} with jockeys`;
+          else if (pl.mode === 'replace') what = `Horse numbers changed and nobody has picked yet, so the field will be replaced (odds carried over by name)`;
+          else what = pl.newScr.length ? '' : 'No new scratchings';
+          const scrList = pl.newScr.length && !pl.locked && pl.mode !== 'blocked' ? `<span class="scrnew">New scratching${pl.newScr.length===1?'':'s'}: ${pl.newScr.map(h => `No. ${h.n}${h.name ? ' ' + esc(h.name) : ''}`).join(', ')}</span>` : '';
+          return `<div class="li"><span class="cloth ${r.n===7?'c':''} num">${r.n}</span><span class="main"><b>${esc(r.name)}</b><span class="owner num">${r.time ? esc(r.time) + ' · ' : ''}${live} running${wj ? ` · ${wj} jockeys` : ''}</span>${scrList}${what ? `<span class="owner">${what}</span>` : ''}</span><span></span></div>`;
+        }).join('') + `</div><button class="primary" data-act="ra-load">Update the sweep</button>
+        <p class="small muted">Safe to run as often as you like. It never removes anyone’s pick, your odds or horses you scratched yourself. Anyone holding a newly scratched horse gets that money back automatically.</p>`;
       }
     }
     return h + `</div></details>`;
@@ -1038,20 +1049,20 @@ const BASE = 'cupsweep/' + SWEEP_ID;
   // (tab-separated, header row contains "Horse") followed by one detail block per horse that
   // starts with "<number><HORSE NAME>" and holds "Colours:" and "Jockey: … Barrier:" lines.
   function parseRA(text){
-    const clean = s => String(s||'').replace(/\s*VOBIS.*$/i,'').replace(/\s+-\s+.*$/,'').trim();
+    const clean = s => String(s||'').replace(/\(?\s*\b(scratched|scr)\b\.?\s*\)?/ig,' ').replace(/\s*VOBIS.*$/i,'').replace(/\s+-\s+.*$/,'').replace(/\s+/g,' ').trim();
     const nkey = s => clean(s).toUpperCase().replace(/[^A-Z0-9]/g,'');
     const title = s => clean(s).toLowerCase().replace(/(^|[\s(\-])([a-z])/g, (m,a,b) => a + b.toUpperCase()).replace(/\(([a-z]+)\)/gi, (m,a) => '(' + a.toUpperCase() + ')');
     const races = []; let cur = null, header = null, det = null;
     String(text||'').split(/\r?\n/).forEach(raw => {
       const line = raw.replace(/ /g,' ');
-      let m = line.match(/^\s*Race\s+(\d+)\s*-\s*(.+?)\s*(\(\s*[\d,]+\s*METRES?\s*\))?\s*$/i);
-      if (m){ cur = { n:+m[1], name:m[2].trim(), rows:[], det:{} }; races.push(cur); header = null; det = null; return; }
+      let m = line.match(/^\s*Race\s+(\d+)\s*-\s*(.+?)\s*$/i);
+      if (m && !/\t/.test(line)){ cur = { n:+m[1], name:cleanRaceName(m[2]) || 'Race ' + m[1], time:headTime(m[2]), rows:[], det:{} }; races.push(cur); header = null; det = null; return; }
       if (!cur) return;
       const cells = line.split('\t');
       if (cells.length > 2 && cells.some(c => c.trim().toLowerCase() === 'horse')){ header = cells.map(c => c.trim().toLowerCase()); return; }
       if (header && cells.length > 2 && /^\d+$/.test(cells[0].trim())){
         const hi = header.indexOf('horse'), ji = header.findIndex(c => c.startsWith('jockey'));
-        if (hi >= 0 && cells[hi]) cur.rows.push({ n:+cells[0].trim(), raw:cells[hi], j: ji >= 0 ? norm(cells[ji]) : '' });
+        if (hi >= 0 && cells[hi]) cur.rows.push({ n:+cells[0].trim(), raw:cells[hi], j: ji >= 0 ? norm(cells[ji]) : '', scr: /\bscratch/i.test(line) || importScr.has(nkey(cells[hi])) });
         return;
       }
       if (cells.length === 1 && /^\d+[A-Z]/.test(line.trim())){ det = {}; cur.det[nkey(line.trim().replace(/^\d+/,''))] = det; return; }
@@ -1060,9 +1071,51 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       m = line.match(/Jockey:\s*(.*?)\s*Barrier:/i); if (m && m[1].trim()) det.j = norm(m[1]);
     });
     return races.filter(r => r.rows.length).map(r => ({
-      n: r.n, name: r.name,
-      field: r.rows.map(x => { const d = r.det[nkey(x.raw)] || {}; return { n:x.n, name:title(x.raw), j: x.j || d.j || '', odds:'', c: (d.c || '').slice(0,120) }; })
+      n: r.n, name: r.name, time: r.time,
+      field: r.rows.map(x => { const d = r.det[nkey(x.raw)] || {}; return { n:x.n, name:title(x.raw), j: x.j || d.j || '', odds:'', c: (d.c || '').slice(0,120), scr: !!x.scr }; })
     }));
+  }
+
+  // How a pasted race lands on the sweep. Never removes picks, odds or your own scratchings.
+  const hkey = s => String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  function planImport(r){
+    const ex = race(r.n), byN = Object.fromEntries(r.field.map(x => [x.n, x]));
+    const plan = { mode: 'new', newScr: [], added: [], conflict: [], locked: false };
+    if (!ex || !ex.field.length) { plan.newScr = r.field.filter(x => x.scr); return plan; }
+    if (ex.res[0]) { plan.locked = true; return plan; }
+    const picked = Object.keys(ex.picks).length > 0;
+    ex.field.forEach(e => {
+      const imp = byN[e.n];
+      if (imp && e.name && imp.name && hkey(e.name) !== hkey(imp.name)) plan.conflict.push(e.n);
+      else if (!e.scr && (!imp || imp.scr)) plan.newScr.push({ n: e.n, name: e.name || (imp && imp.name) || '' , gone: !imp });
+    });
+    r.field.forEach(x => { if (!horse(ex, x.n)) plan.added.push(x); });
+    plan.mode = plan.conflict.length ? (picked ? 'blocked' : 'replace') : 'update';
+    if (plan.mode === 'replace'){ // numbers changed and nobody has picked yet: take the new field, carry odds and scratchings over by name
+      const old = Object.fromEntries(ex.field.map(e => [hkey(e.name), e]));
+      plan.newScr = r.field.filter(x => x.scr || (old[hkey(x.name)] || {}).scr);
+    }
+    return plan;
+  }
+  function applyImport(r, plan, u){
+    const ex = race(r.n), base = `races/${r.n}`;
+    if (plan.locked || plan.mode === 'blocked') return 0;
+    if (plan.mode === 'new' || plan.mode === 'replace'){
+      const old = ex ? Object.fromEntries(ex.field.map(e => [hkey(e.name), e])) : {};
+      const obj = {}; r.field.forEach(x => { const o = old[hkey(x.name)] || {}; obj[x.n] = { name:x.name, j:x.j || o.j || '', odds:o.odds || '', pl:o.pl || '', c:x.c || o.c || '', scr: !!(x.scr || o.scr) }; });
+      u[`${base}/field`] = obj; u[`${base}/name`] = r.name; if (r.time) u[`${base}/time`] = r.time;
+      if (!ex){ u[`${base}/on`] = true; u[`${base}/price`] = 2; u[`${base}/split`] = {p1:60,p2:30,p3:10}; }
+      return 1;
+    }
+    r.field.forEach(x => { const e = horse(ex, x.n);
+      if (!e){ u[`${base}/field/${x.n}`] = { name:x.name, j:x.j, odds:'', pl:'', c:x.c, scr: !!x.scr }; return; }
+      if (x.j && x.j !== e.j) u[`${base}/field/${x.n}/j`] = x.j;
+      if (x.c && x.c !== e.c) u[`${base}/field/${x.n}/c`] = x.c;
+      if (!e.name && x.name) u[`${base}/field/${x.n}/name`] = x.name;
+    });
+    plan.newScr.forEach(h => { u[`${base}/field/${h.n}/scr`] = true; PK.forEach((k,i) => { if (ex.res[i] === h.n) u[`${base}/res/${k}`] = null; }); });
+    u[`${base}/name`] = r.name; if (r.time) u[`${base}/time`] = r.time;
+    return 1;
   }
 
   // ---------- events ----------
@@ -1090,21 +1143,14 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     if (act === 'wrapped' && isOrg){ save({ 'meta/wrapped': S.meta.wrapped ? null : TS }, S.meta.wrapped ? 'Wrapped hidden' : 'Cup Day Wrapped is showing on every phone'); return; }
     if (!isOrg) return;
     if (act === 'ra-read'){ importPreview = parseRA(importText); render(); return; }
-    if (act === 'ra-clear'){ importText = ''; importPreview = null; render(); return; }
+    if (act === 'ra-clear'){ importText = ''; importPreview = null; importScr = new Set(); importHtml = false; render(); return; }
     if (act === 'ra-load'){
       if (!importPreview || !importPreview.length) return;
-      const u = {}; let loaded = 0;
-      importPreview.forEach(r => {
-        const ex = race(r.n);
-        if (ex && Object.keys(ex.picks).length) return;
-        const obj = {}; r.field.forEach(x => { obj[x.n] = { name:x.name, j:x.j, odds:'', c:x.c, scr:false }; });
-        u[`races/${r.n}/field`] = obj;
-        u[`races/${r.n}/name`] = r.name;
-        if (!ex){ u[`races/${r.n}/on`] = true; u[`races/${r.n}/price`] = 2; u[`races/${r.n}/split`] = {p1:60,p2:30,p3:10}; }
-        loaded++;
-      });
-      importText = ''; importPreview = null;
-      save(u, `Loaded ${loaded} race${loaded===1?'':'s'} from Racing Australia`);
+      const u = {}; let loaded = 0, scr = 0;
+      importPreview.forEach(r => { const pl = planImport(r); if (applyImport(r, pl, u)){ loaded++; scr += pl.newScr.length; } });
+      importText = ''; importPreview = null; importScr = new Set(); importHtml = false;
+      if (!loaded){ say('Nothing to update.'); return; }
+      save(u, `Updated ${loaded} race${loaded===1?'':'s'}${scr ? ` · ${scr} new scratching${scr===1?'':'s'}` : ''}`);
       return;
     }
     if (act === 'lock'){ isOrg = false; LS.set('cupsweep.pin.'+SWEEP_ID, null); render(); return; }
@@ -1203,7 +1249,8 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       if (f === 'price') v = Math.max(0, Math.round((+t.value||0)*100)/100);
       else if (f === 'on') v = t.value === '1';
       else { v = norm(t.value); if (f === 'name' && !v) v = 'Race '+r.id; }
-      save({ [`races/${r.id}/${f}`]: v }, `${r.name} updated`);
+      const u = { [`races/${r.id}/${f}`]: v }; if (f === 'time') u[`races/${r.id}/name`] = r.name;
+      save(u, `${r.name} updated`);
     } else if (t.dataset.split){
       save({ [`races/${r.id}/split/${PK[+t.dataset.split]}`]: Math.max(0, Math.min(100, Math.round(+t.value||0))) }, 'Prize split updated');
     } else if (t.dataset.res){
@@ -1228,6 +1275,31 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     e.preventDefault();
     const all = [...root.querySelectorAll('input[data-odd]')], i = all.indexOf(t);
     if (all[i+1]){ all[i+1].focus(); all[i+1].select(); } else t.blur();
+  });
+
+  // Racing Australia shows a scratching as a red, struck-through row. That's formatting, not words,
+  // so read the formatted copy the browser keeps alongside the plain text.
+  function scratchedFromHtml(html){
+    const out = new Set();
+    let doc; try { doc = new DOMParser().parseFromString(html, 'text/html'); } catch(_) { return out; }
+    const key = t => String(t||'').replace(/\(?\s*\b(scratched|scr)\b\.?\s*\)?/ig,' ').replace(/\s*VOBIS.*$/i,'').replace(/\s+-\s+.*$/,'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    const red = /color\s*:\s*(red|#f00\b|#ff0000|#e[0-9a-f]0{4}|rgb\(\s*(1[5-9]\d|2[0-5]\d)\s*,\s*([0-5]?\d)\s*,\s*([0-5]?\d)\s*\))/i;
+    const marked = el => {
+      const st = (el.getAttribute && el.getAttribute('style')) || '', cls = String(el.className || '');
+      return /line-through/i.test(st) || red.test(st) || /scratch|strike/i.test(cls) || /^(S|STRIKE|DEL)$/.test(el.tagName);
+    };
+    doc.querySelectorAll('tr').forEach(tr => {
+      const cells = [...tr.children].map(td => td.textContent.trim());
+      if (!/^\d+$/.test(cells[0] || '')) return;
+      const hit = marked(tr) || [...tr.querySelectorAll('*')].some(marked) || /\bscratch/i.test(tr.textContent);
+      if (hit) cells.slice(1).forEach(c => { const k = key(c); if (k.length > 2) out.add(k); });
+    });
+    return out;
+  }
+  root.addEventListener('paste', e => {
+    if (!e.target || e.target.id !== 'ra-text' || !e.clipboardData) return;
+    const html = e.clipboardData.getData('text/html');
+    importHtml = !!html; importScr = html ? scratchedFromHtml(html) : new Set();
   });
 
   root.addEventListener('focusout', () => { setTimeout(() => { if (pendingRender && !editing()) render(); }, 50); });
