@@ -794,7 +794,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       if (!importPreview.length) h += `<p class="warn">I couldn’t find any races in that text. Make sure you copied the whole page, including the “Race 1 - …” headings.</p>`;
       else {
         h += `<div class="list">` + importPreview.map(r => {
-          const pl = planImport(r), live = r.field.filter(x => !x.scr).length, wj = r.field.filter(x => x.j).length;
+          const pl = planImport(r, true), live = r.field.filter(x => !x.scr).length, wj = r.field.filter(x => x.j).length;
           let what;
           if (pl.locked) what = '<span class="muted">Result already in, so left alone</span>';
           else if (pl.mode === 'blocked') what = `<span class="neg-net">Horse numbers don’t match what’s loaded (No. ${pl.conflict.slice(0,4).join(', ')}), and horses are already picked, so this race is left alone. Scratch any changes by hand.</span>`;
@@ -802,8 +802,10 @@ const BASE = 'cupsweep/' + SWEEP_ID;
           else if (pl.mode === 'replace') what = `Horse numbers changed and nobody has picked yet, so the field will be replaced (odds carried over by name)`;
           else what = pl.newScr.length ? '' : 'No new scratchings';
           const scrList = pl.newScr.length && !pl.locked && pl.mode !== 'blocked' ? `<span class="scrnew">New scratching${pl.newScr.length===1?'':'s'}: ${pl.newScr.map(h => `No. ${h.n}${h.name ? ' ' + esc(h.name) : ''}`).join(', ')}</span>` : '';
-          return `<div class="li"><span class="cloth ${r.n===7?'c':''} num">${r.n}</span><span class="main"><b>${esc(r.name)}</b><span class="owner num">${r.time ? esc(r.time) + ' · ' : ''}${live} running${wj ? ` · ${wj} jockeys` : ''}</span>${scrList}${what ? `<span class="owner">${what}</span>` : ''}</span><span></span></div>`;
-        }).join('') + `</div><button class="primary" data-act="ra-load">Update the sweep</button>
+          const unList = pl.unScr.length ? `<span class="owner">${pl.unScr.length} horse${pl.unScr.length===1?' is':'s are'} scratched in the sweep but running on this page</span>` : '';
+          const doubt = r.doubt ? `<span class="warn">The page’s formatting marked ${r.doubt} of ${r.field.length} as scratched, which can’t be right, so it was ignored for this race.</span>` : '';
+          return `<div class="li"><span class="cloth ${r.n===7?'c':''} num">${r.n}</span><span class="main"><b>${esc(r.name)}</b><span class="owner num">${r.time ? esc(r.time) + ' · ' : ''}${live} running${wj ? ` · ${wj} jockeys` : ''}</span>${scrList}${unList}${doubt}${what ? `<span class="owner">${what}</span>` : ''}</span><span></span></div>`;
+        }).join('') + `</div>${importPreview.some(r => planImport(r, true).unScr.length) ? `<button class="primary" data-act="ra-load" data-exact="1">Update and reset scratchings to match this page</button><p class="small">Un-scratches any horse this page shows as running, and scratches the ones it shows as scratched. Use this to undo wrong scratchings.</p>` : ''}<button class="${importPreview.some(r => planImport(r, true).unScr.length) ? '' : 'primary'}" data-act="ra-load">Update the sweep</button>
         <p class="small muted">Safe to run as often as you like. It never removes anyone’s pick, your odds or horses you scratched yourself. Anyone holding a newly scratched horse gets that money back automatically.</p>`;
       }
     }
@@ -1054,6 +1056,8 @@ const BASE = 'cupsweep/' + SWEEP_ID;
   function parseRA(text){
     const clean = s => String(s||'').replace(/\(?\s*\b(scratched|scr)\b\.?\s*\)?/ig,' ').replace(/\s*VOBIS.*$/i,'').replace(/\s+-\s+.*$/,'').replace(/\s+/g,' ').trim();
     const nkey = s => clean(s).toUpperCase().replace(/[^A-Z0-9]/g,'');
+    const nkey2 = s => clean(s).replace(/\([^)]*\)/g,' ').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    const detOf = (r, raw) => r.det[nkey(raw)] || r.det[nkey2(raw)] || {};
     const title = s => clean(s).toLowerCase().replace(/(^|[\s(\-])([a-z])/g, (m,a,b) => a + b.toUpperCase()).replace(/\(([a-z]+)\)/gi, (m,a) => '(' + a.toUpperCase() + ')');
     const races = []; let cur = null, header = null, det = null;
     String(text||'').split(/\r?\n/).forEach(raw => {
@@ -1065,25 +1069,29 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       if (cells.length > 2 && cells.some(c => c.trim().toLowerCase() === 'horse')){ header = cells.map(c => c.trim().toLowerCase()); return; }
       if (header && cells.length > 2 && /^\d+$/.test(cells[0].trim())){
         const hi = header.indexOf('horse'), ji = header.findIndex(c => c.startsWith('jockey'));
-        if (hi >= 0 && cells[hi]) cur.rows.push({ n:+cells[0].trim(), raw:cells[hi], j: ji >= 0 ? norm(cells[ji]) : '', scr: /\bscratch/i.test(line) || importScr.has(nkey(cells[hi])) });
+        if (hi >= 0 && cells[hi]) cur.rows.push({ n:+cells[0].trim(), raw:cells[hi], j: ji >= 0 ? norm(cells[ji]) : '', scr: /\bscratch/i.test(cells[hi]) || importScr.has(nkey(cells[hi])) });
         return;
       }
-      if (cells.length === 1 && /^\d+[A-Z]/.test(line.trim())){ det = {}; cur.det[nkey(line.trim().replace(/^\d+/,''))] = det; return; }
+      if (cells.length === 1 && /^\d+[A-Z]/.test(line.trim())){ det = {}; const hn = line.trim().replace(/^\d+/,''); cur.det[nkey(hn)] = det; cur.det[nkey2(hn)] = cur.det[nkey2(hn)] || det; return; }
       if (!det) return;
+      if (/^\s*scratched\s*$/i.test(line)){ det.scr = true; return; }
       m = line.match(/^\s*Colours:\s*(.+)$/i); if (m){ det.c = m[1].replace(/\s+/g,' ').trim(); return; }
       m = line.match(/Jockey:\s*(.*?)\s*Barrier:/i); if (m && m[1].trim()) det.j = norm(m[1]);
     });
+    // If more than half a race reads as scratched, the formatting can't be trusted: ignore it for that race.
+    races.forEach(r => r.rows.forEach(x => { if (detOf(r, x.raw).scr) x.scr = true; }));
+    races.forEach(r => { const k = r.rows.filter(x => x.scr).length; if (r.rows.length >= 4 && k > r.rows.length / 2){ r.rows.forEach(x => x.scr = false); r.doubt = k; } });
     return races.filter(r => r.rows.length).map(r => ({
-      n: r.n, name: r.name, time: r.time,
-      field: r.rows.map(x => { const d = r.det[nkey(x.raw)] || {}; return { n:x.n, name:title(x.raw), j: x.j || d.j || '', odds:'', c: (d.c || '').slice(0,120), scr: !!x.scr }; })
+      n: r.n, name: r.name, time: r.time, doubt: r.doubt || 0,
+      field: r.rows.map(x => { const d = detOf(r, x.raw); return { n:x.n, name:title(x.raw), j: x.j || d.j || '', odds:'', c: (d.c || '').slice(0,120), scr: !!x.scr }; })
     }));
   }
 
   // How a pasted race lands on the sweep. Never removes picks, odds or your own scratchings.
   const hkey = s => String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-  function planImport(r){
+  function planImport(r, exact){
     const ex = race(r.n), byN = Object.fromEntries(r.field.map(x => [x.n, x]));
-    const plan = { mode: 'new', newScr: [], added: [], conflict: [], locked: false };
+    const plan = { mode: 'new', newScr: [], unScr: [], added: [], conflict: [], locked: false };
     if (!ex || !ex.field.length) { plan.newScr = r.field.filter(x => x.scr); return plan; }
     if (ex.res[0]) { plan.locked = true; return plan; }
     const picked = Object.keys(ex.picks).length > 0;
@@ -1091,21 +1099,22 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       const imp = byN[e.n];
       if (imp && e.name && imp.name && hkey(e.name) !== hkey(imp.name)) plan.conflict.push(e.n);
       else if (!e.scr && (!imp || imp.scr)) plan.newScr.push({ n: e.n, name: e.name || (imp && imp.name) || '' , gone: !imp });
+      else if (e.scr && imp && !imp.scr) plan.unScr.push({ n: e.n, name: e.name || imp.name || '' });
     });
     r.field.forEach(x => { if (!horse(ex, x.n)) plan.added.push(x); });
     plan.mode = plan.conflict.length ? (picked ? 'blocked' : 'replace') : 'update';
     if (plan.mode === 'replace'){ // numbers changed and nobody has picked yet: take the new field, carry odds and scratchings over by name
       const old = Object.fromEntries(ex.field.map(e => [hkey(e.name), e]));
-      plan.newScr = r.field.filter(x => x.scr || (old[hkey(x.name)] || {}).scr);
+      plan.newScr = r.field.filter(x => x.scr || (!exact && (old[hkey(x.name)] || {}).scr));
     }
     return plan;
   }
-  function applyImport(r, plan, u){
+  function applyImport(r, plan, u, exact){
     const ex = race(r.n), base = `races/${r.n}`;
     if (plan.locked || plan.mode === 'blocked') return 0;
     if (plan.mode === 'new' || plan.mode === 'replace'){
       const old = ex ? Object.fromEntries(ex.field.map(e => [hkey(e.name), e])) : {};
-      const obj = {}; r.field.forEach(x => { const o = old[hkey(x.name)] || {}; obj[x.n] = { name:x.name, j:x.j || o.j || '', odds:o.odds || '', pl:o.pl || '', c:x.c || o.c || '', scr: !!(x.scr || o.scr) }; });
+      const obj = {}; r.field.forEach(x => { const o = old[hkey(x.name)] || {}; obj[x.n] = { name:x.name, j:x.j || o.j || '', odds:o.odds || '', pl:o.pl || '', c:x.c || o.c || '', scr: !!(x.scr || (!exact && o.scr)) }; });
       u[`${base}/field`] = obj; u[`${base}/name`] = r.name; if (r.time) u[`${base}/time`] = r.time;
       if (!ex){ u[`${base}/on`] = true; u[`${base}/price`] = 2; u[`${base}/split`] = {p1:60,p2:30,p3:10}; }
       return 1;
@@ -1116,6 +1125,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       if (x.c && x.c !== e.c) u[`${base}/field/${x.n}/c`] = x.c;
       if (!e.name && x.name) u[`${base}/field/${x.n}/name`] = x.name;
     });
+    if (exact) plan.unScr.forEach(h => { u[`${base}/field/${h.n}/scr`] = false; });
     plan.newScr.forEach(h => { u[`${base}/field/${h.n}/scr`] = true; PK.forEach((k,i) => { if (ex.res[i] === h.n) u[`${base}/res/${k}`] = null; }); });
     u[`${base}/name`] = r.name; if (r.time) u[`${base}/time`] = r.time;
     return 1;
@@ -1150,7 +1160,8 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     if (act === 'ra-load'){
       if (!importPreview || !importPreview.length) return;
       const u = {}; let loaded = 0, scr = 0;
-      importPreview.forEach(r => { const pl = planImport(r); if (applyImport(r, pl, u)){ loaded++; scr += pl.newScr.length; } });
+      const exact = b.dataset.exact === '1';
+      importPreview.forEach(r => { const pl = planImport(r, exact); if (applyImport(r, pl, u, exact)){ loaded++; scr += pl.newScr.length; } });
       importText = ''; importPreview = null; importScr = new Set(); importHtml = false;
       if (!loaded){ say('Nothing to update.'); return; }
       save(u, `Updated ${loaded} race${loaded===1?'':'s'}${scr ? ` · ${scr} new scratching${scr===1?'':'s'}` : ''}`);
@@ -1292,16 +1303,12 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     const out = new Set();
     let doc; try { doc = new DOMParser().parseFromString(html, 'text/html'); } catch(_) { return out; }
     const key = t => String(t||'').replace(/\(?\s*\b(scratched|scr)\b\.?\s*\)?/ig,' ').replace(/\s*VOBIS.*$/i,'').replace(/\s+-\s+.*$/,'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-    const red = /color\s*:\s*(red|#f00\b|#ff0000|#e[0-9a-f]0{4}|rgb\(\s*(1[5-9]\d|2[0-5]\d)\s*,\s*([0-5]?\d)\s*,\s*([0-5]?\d)\s*\))/i;
-    const marked = el => {
-      const st = (el.getAttribute && el.getAttribute('style')) || '', cls = String(el.className || '');
-      return /line-through/i.test(st) || red.test(st) || /scratch|strike/i.test(cls) || /^(S|STRIKE|DEL)$/.test(el.tagName);
-    };
+    // Only what you can see: the row, or its horse name, drawn with a line through it.
+    const struck = el => /line-through/i.test((el.getAttribute && el.getAttribute('style')) || '') || /^(S|STRIKE|DEL)$/.test(el.tagName);
     doc.querySelectorAll('tr').forEach(tr => {
-      const cells = [...tr.children].map(td => td.textContent.trim());
-      if (!/^\d+$/.test(cells[0] || '')) return;
-      const hit = marked(tr) || [...tr.querySelectorAll('*')].some(marked) || /\bscratch/i.test(tr.textContent);
-      if (hit) cells.slice(1).forEach(c => { const k = key(c); if (k.length > 2) out.add(k); });
+      const cells = [...tr.children];
+      if (!/^\d+$/.test((cells[0] && cells[0].textContent.trim()) || '')) return;
+      if (struck(tr) || cells.some(td => struck(td) || [...td.querySelectorAll('*')].some(struck))) cells.slice(1).forEach(td => { const k = key(td.textContent); if (k.length > 2) out.add(k); });
     });
     return out;
   }
