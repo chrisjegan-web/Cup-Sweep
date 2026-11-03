@@ -210,8 +210,15 @@ details>summary{cursor:pointer;font-weight:800;color:var(--turf);padding:8px 0;f
 .feeditem span:last-child{white-space:nowrap;flex:0 0 auto}
 .feeditem.win{font-weight:700;color:var(--turf)}
 .tag{display:inline-block;font-size:13.5px;font-weight:900;letter-spacing:.03em;text-transform:uppercase;padding:2px 8px;border-radius:99px;vertical-align:2px}
+.tag{white-space:nowrap}
 .tag.fav{background:var(--gold);color:var(--ink)}
-.tag.roughie{background:var(--rose);color:var(--on-solid)}
+.tag.hot{background:var(--rose);color:var(--on-solid)}
+.tag.live{background:var(--turf);color:var(--on-solid)}
+.tag.eachway{background:var(--silver);color:var(--ink)}
+.tag.roughie{background:var(--bronze);color:var(--ink)}
+.tag.bolter{background:var(--ink);color:var(--on-solid)}
+.verdict{font-size:17px;font-weight:700;line-height:1.35}
+.verdict .muted{font-weight:600;font-size:15.5px}
 .badge{display:inline-block;font-size:16px;font-weight:700;font-family:var(--body);margin-left:3px;white-space:nowrap}
 .wrapped{border:3px solid var(--gold);background:var(--gold-soft)}
 .wrapped h2{color:var(--ink)}
@@ -505,14 +512,22 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     const f = v.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/); if (f) return 1 + (+f[1]) / (+f[2] || 1);
     return parseFloat(v) || 0;
   }
+  // A plain-English verdict from the win price: favourite down to bolter.
   function drawTag(r, n){
     const hz = horse(r, n) || {}, o = oddsNum(hz.odds || (r.picks[n] || {}).odds); if (!o) return '';
     const all = r.field.filter(x => !x.scr).map(x => oddsNum(x.odds)).filter(Boolean);
     if (all.length > 1 && o <= Math.min(...all)) return 'fav';
-    if (o >= 20) return 'roughie';
-    return '';
+    if (o <= 5) return 'hot';
+    if (o <= 10) return 'live';
+    if (o < 20) return 'eachway';
+    if (o < 50) return 'roughie';
+    return 'bolter';
   }
-  const TAGTXT = { fav: 'Favourite!', roughie: 'Roughie, big dreams' };
+  const TAGTXT = { fav: '👑 Favourite', hot: '🔥 Hot chance', live: '👍 Live chance', eachway: '🤞 Each-way hope', roughie: '🐎 Roughie', bolter: '🌈 Bolter' };
+  const TAGMSG = { fav: 'The favourite! Everyone wanted this one.', hot: 'A genuine chance. Well drawn!', live: 'In the mix with a real shot.', eachway: 'Needs some luck, but could sneak a place.', roughie: 'A roughie. Big dreams!', bolter: 'A long shot. If this one wins, the drinks are on you!' };
+  const tagHtml = (r, n) => { const k = drawTag(r, n); return k ? `<span class="tag ${k}">${TAGTXT[k]}</span>` : ''; };
+  // Rough chance from the win price ($5 ≈ 1 in 5). Bookmakers' margins mean it's only a guide.
+  const chanceTxt = (r, n) => { const o = oddsNum((horse(r, n) || {}).odds || (r.picks[n] || {}).odds); return o >= 1.5 ? `Roughly a 1 in ${Math.round(o)} chance` : ''; };
   const resulted = () => S.races.filter(r => r.on && r.res[0]);
   function badgesFor(C){
     const b = {}; const add = (pid, k) => { (b[pid] = b[pid] || new Set()).add(k); };
@@ -816,7 +831,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     const hz = horse(r,n) || {n:+n}, pl = r.res.indexOf(+n), ln = C.info[r.id] ? C.info[r.id].lines.find(l => l.n === +n) : null;
     const state = hz.scr ? 'Scratched, refunded' : pl >= 0 ? `<span class="place p${pl+1}">${PL[pl]}</span>` : r.res[0] ? 'Unplaced' : (r.time ? 'Runs '+esc(r.time) : 'Yet to run');
     const od = fmtOdds(hz.odds || pk.odds);
-    return `<button class="li" data-act="sel" data-id="${r.id}"><span class="ids"><span class="cloth ${r.cup?'c':''} num">${n}</span>${silk(hz.c, uid)}</span><span class="main"><b>${esc(hz.name || 'No. '+n)}</b><span class="owner">${esc(r.name)} · ${state}</span>${hz.j?`<span class="jock">${esc(hz.j)}</span>`:''}</span><span style="text-align:right">${ln?`<span class="amt num pos-net">+${money(ln.amt)}</span><br>`:''}${oddsHtml(hz, pk.odds)}</span></button>`;
+    return `<button class="li" data-act="sel" data-id="${r.id}"><span class="ids"><span class="cloth ${r.cup?'c':''} num">${n}</span>${silk(hz.c, uid)}</span><span class="main"><b>${esc(hz.name || 'No. '+n)}</b><span class="owner">${esc(r.name)} · ${state}</span>${!hz.scr && !r.res[0] && drawTag(r,n) ? `<span>${tagHtml(r,n)}</span>` : ''}${hz.j?`<span class="jock">${esc(hz.j)}</span>`:''}</span><span style="text-align:right">${ln?`<span class="amt num pos-net">+${money(ln.amt)}</span><br>`:''}${oddsHtml(hz, pk.odds)}</span></button>`;
   }
 
   function renderTicker(me){
@@ -875,7 +890,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       h += `<div style="display:grid;gap:8px"><div class="head"><h3>${esc(who)}’s horses in this race</h3><span class="small muted num">${held.length} · ${money(held.filter(([n]) => !(horse(r,n)||{}).scr).length * r.price)}</span></div><div class="mygrid">` +
         held.map(([n,pk]) => {
           const hz = horse(r,n) || {n:+n}, fresh = reveal && reveal.race === r.id && reveal.n === +n, pl = r.res.indexOf(+n), od = fmtOdds(hz.odds || pk.odds);
-          return `<div class="mycard ${fresh?'fresh':''} ${hz.scr?'scr':''}"><div class="big-ids"><span class="cloth ${r.cup?'c':''} num">${n}</span>${silk(hz.c,'my-'+r.id+'-'+n)}</div><div style="display:grid;gap:2px;min-width:0">${fresh?`<span class="eyebrow">Just picked${drawTag(r,n) ? ` · <span class="tag ${drawTag(r,n)}">${TAGTXT[drawTag(r,n)]}</span>` : ''}</span>`:''}<b class="hname">${esc(hz.name || 'No. '+n)}</b>${hz.j?`<span class="jock">${esc(hz.j)}</span>`:''}<span>${hz.scr?'<span class="small neg-net">Scratched, refunded</span>':''}${pl>=0?`<span class="place p${pl+1}">${PL[pl]}</span> `:''}${oddsHtml(hz, pk.odds)}</span></div></div>`;
+          return `<div class="mycard ${fresh?'fresh':''} ${hz.scr?'scr':''}"><div class="big-ids"><span class="cloth ${r.cup?'c':''} num">${n}</span>${silk(hz.c,'my-'+r.id+'-'+n)}</div><div style="display:grid;gap:2px;min-width:0">${fresh?`<span class="eyebrow">Just picked</span>`:''}<b class="hname">${esc(hz.name || 'No. '+n)}</b>${!hz.scr && drawTag(r,n) ? `<span>${tagHtml(r,n)}</span>` : ''}${fresh && !hz.scr && drawTag(r,n) ? `<span class="verdict">${TAGMSG[drawTag(r,n)]}${chanceTxt(r,n) ? ` <span class="muted">${chanceTxt(r,n)}.</span>` : ''}</span>` : ''}${hz.j?`<span class="jock">${esc(hz.j)}</span>`:''}<span>${hz.scr?'<span class="small neg-net">Scratched, refunded</span>':''}${pl>=0?`<span class="place p${pl+1}">${PL[pl]}</span> `:''}${oddsHtml(hz, pk.odds)}</span></div></div>`;
         }).join('') + `</div></div>`;
     }
     if (!open && r.on && !r.res[0] && byTime(r) && !r.closed) h += `<div class="note">Picks closed automatically at the race time (${esc(r.time)}).</div>`;
@@ -908,6 +923,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
         return `<div class="li rn ${hz.scr?'scr':''} ${mine?'mine':''}"><span class="ids"><span class="cloth ${r.cup?'c':''} ${pk&&!hz.scr&&!mine?'taken':''} num" ${pk&&!hz.scr&&!mine?'aria-label="Taken"':''}>${hz.n}</span>${silk(hz.c,'f-'+r.id+'-'+hz.n)}</span>
           <span class="main"><b class="hname">${esc(hz.name || 'No. '+hz.n)}</b>
           <span class="owner ${!pk&&!hz.scr&&open?'free':''}">${hz.scr ? (pk ? `Scratched · ${esc(pname(pk))} refunded` : 'Scratched') : pk ? `<b>${esc(pname(pk))}</b>${mine?' (you)':''}` : open ? 'Available' : 'Unowned'}</span>
+          ${!hz.scr && drawTag(r,hz.n) ? `<span>${tagHtml(r,hz.n)}</span>` : ''}
           ${hz.j||hz.c?`<span class="jock">${hz.j?esc(hz.j):''}${hz.j&&hz.c?' · ':''}${esc(hz.c||'')}</span>`:''}</span>
           <span class="side">${pl>=0?`<span class="place p${pl+1}">${PL[pl]}</span>`:''}${oddsHtml(hz)}${isOrg?`<button class="tog" data-act="scr" data-n="${hz.n}">${hz.scr?'Unscratch':'Scratch'}</button>`:''}</span></div>`;
       }).join('') + `</div>`;
@@ -1067,12 +1083,12 @@ const BASE = 'cupsweep/' + SWEEP_ID;
       if (!cur) return;
       const cells = line.split('\t');
       if (cells.length > 2 && cells.some(c => c.trim().toLowerCase() === 'horse')){ header = cells.map(c => c.trim().toLowerCase()); return; }
-      if (header && cells.length > 2 && /^\d+$/.test(cells[0].trim())){
+      if (header && cells.length > 2 && /^\d+e?$/i.test(cells[0].trim())){
         const hi = header.indexOf('horse'), ji = header.findIndex(c => c.startsWith('jockey'));
-        if (hi >= 0 && cells[hi]) cur.rows.push({ n:+cells[0].trim(), raw:cells[hi], j: ji >= 0 ? norm(cells[ji]) : '', scr: /\bscratch/i.test(cells[hi]) || importScr.has(nkey(cells[hi])) });
+        if (hi >= 0 && cells[hi]) cur.rows.push({ n:parseInt(cells[0], 10), raw:cells[hi], j: ji >= 0 ? norm(String(cells[ji]).replace(/\s*\((late\s*alt|emergency)[^)]*\)/ig,'')) : '', scr: /\bscratch/i.test(cells[hi]) || importScr.has(nkey(cells[hi])) });
         return;
       }
-      if (cells.length === 1 && /^\d+[A-Z]/.test(line.trim())){ det = {}; const hn = line.trim().replace(/^\d+/,''); cur.det[nkey(hn)] = det; cur.det[nkey2(hn)] = cur.det[nkey2(hn)] || det; return; }
+      if (cells.length === 1 && /^\d+e?\s*[A-Z]/.test(line.trim())){ det = {}; const hn = line.trim().replace(/^\d+e?\s*/,''); cur.det[nkey(hn)] = det; cur.det[nkey2(hn)] = cur.det[nkey2(hn)] || det; return; }
       if (!det) return;
       if (/^\s*scratched\s*$/i.test(line)){ det.scr = true; return; }
       m = line.match(/^\s*Colours:\s*(.+)$/i); if (m){ det.c = m[1].replace(/\s+/g,' ').trim(); return; }
@@ -1310,7 +1326,7 @@ const BASE = 'cupsweep/' + SWEEP_ID;
     const struck = el => /line-through/i.test((el.getAttribute && el.getAttribute('style')) || '') || /^(S|STRIKE|DEL)$/.test(el.tagName);
     doc.querySelectorAll('tr').forEach(tr => {
       const cells = [...tr.children];
-      if (!/^\d+$/.test((cells[0] && cells[0].textContent.trim()) || '')) return;
+      if (!/^\d+e?$/i.test((cells[0] && cells[0].textContent.trim()) || '')) return;
       if (struck(tr) || cells.some(td => struck(td) || [...td.querySelectorAll('*')].some(struck))) cells.slice(1).forEach(td => { const k = key(td.textContent); if (k.length > 2) out.add(k); });
     });
     return out;
